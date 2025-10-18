@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/screens/home_screen.dart';
-import 'package:myapp/screens/profile_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:mealtime/providers/household_provider.dart';
+import 'package:mealtime/screens/cats_list_screen.dart';
+import 'package:mealtime/screens/feed_cats_screen.dart';
+import 'package:mealtime/screens/analytics_screen.dart';
+import 'package:mealtime/screens/settings_screen.dart';
+import 'package:mealtime/widgets/bottom_nav_bar.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,8 +18,10 @@ class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
 
   static const List<Widget> _widgetOptions = <Widget>[
-    HomeScreen(),
-    ProfileScreen(),
+    CatsListScreen(),
+    FeedCatsScreen(),
+    AnalyticsScreen(),
+    SettingsScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -25,25 +32,29 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+    return Consumer<HouseholdProvider>(
+      builder: (context, householdProvider, child) {
+        final household = householdProvider.currentHousehold;
+        
+        if (household == null) {
+          return const Scaffold(
+            body: Center(
+              child: Text('Nenhuma casa selecionada'),
+            ),
+          );
+        }
+
+        return Scaffold(
+          body: IndexedStack(
+            index: _selectedIndex,
+            children: _widgetOptions,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
+          bottomNavigationBar: CustomBottomNavBar(
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
           ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
-        onTap: _onItemTapped,
-      ),
+        );
+      },
     );
   }
 }

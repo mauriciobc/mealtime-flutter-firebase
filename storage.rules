@@ -1,0 +1,41 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isHouseholdMember(householdId) {
+      return isAuthenticated() && 
+             exists(/databases/(default)/documents/households/$(householdId)) &&
+             request.auth.uid in firestore.get(/databases/(default)/documents/households/$(householdId)).data.members[].userId;
+    }
+    
+    function isValidImageFile() {
+      return request.resource.contentType.matches('image/.*') &&
+             request.resource.size < 5 * 1024 * 1024; // 5MB limit
+    }
+    
+    // Cat photos - only household members can upload/read
+    match /cat_photos/{householdId}/{catId}.{extension} {
+      allow read: if isHouseholdMember(householdId);
+      allow write: if isHouseholdMember(householdId) && 
+                      isValidImageFile() &&
+                      extension.matches('(jpg|jpeg|png|webp)');
+      allow delete: if isHouseholdMember(householdId);
+    }
+    
+    // User profile photos - only the user can upload/read
+    match /user_photos/{userId}/{fileName} {
+      allow read, write, delete: if isAuthenticated() && 
+                                    request.auth.uid == userId &&
+                                    isValidImageFile();
+    }
+    
+    // Deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

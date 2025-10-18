@@ -1,0 +1,88 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    function isHouseholdMember(householdId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/households/$(householdId)) &&
+             request.auth.uid in get(/databases/$(database)/documents/households/$(householdId)).data.members[].userId;
+    }
+    
+    function isHouseholdAdmin(householdId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/households/$(householdId)) &&
+             request.auth.uid in get(/databases/$(database)/documents/households/$(householdId)).data.members[?(@.role == 'admin')].userId;
+    }
+    
+    function isCatOwner(catId) {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/cats/$(catId)) &&
+             isHouseholdMember(get(/databases/$(database)/documents/cats/$(catId)).data.householdId);
+    }
+
+    // Users collection - only the user can read/write their own data
+    match /users/{userId} {
+      allow read, write: if isAuthenticated() && isOwner(userId);
+    }
+    
+    // Households collection - members can read, admins can write
+    match /households/{householdId} {
+      allow read: if isHouseholdMember(householdId);
+      allow create: if isAuthenticated() && isOwner(resource.data.createdBy);
+      allow update: if isHouseholdAdmin(householdId);
+      allow delete: if isHouseholdAdmin(householdId);
+    }
+    
+    // Cats collection - household members can read/write
+    match /cats/{catId} {
+      allow read, write: if isCatOwner(catId);
+      allow create: if isAuthenticated() && 
+                       isHouseholdMember(request.resource.data.householdId);
+    }
+    
+    // Feedings collection - household members can read/write
+    match /feedings/{feedingId} {
+      allow read, write: if isAuthenticated() && 
+                            isHouseholdMember(resource.data.householdId);
+      allow create: if isAuthenticated() && 
+                       isHouseholdMember(request.resource.data.householdId) &&
+                       isOwner(request.resource.data.fedBy);
+    }
+    
+    // Weight entries collection - household members can read/write
+    match /weight_entries/{weightId} {
+      allow read, write: if isAuthenticated() && 
+                            isCatOwner(resource.data.catId);
+      allow create: if isAuthenticated() && 
+                       isCatOwner(request.resource.data.catId) &&
+                       isOwner(request.resource.data.loggedBy);
+    }
+    
+    // Weight goals collection - household members can read/write
+    match /weight_goals/{catId} {
+      allow read, write: if isCatOwner(catId);
+    }
+    
+    // Escalation logs collection - household members can read, system can write
+    match /escalation_logs/{logId} {
+      allow read: if isAuthenticated() && 
+                     isHouseholdMember(resource.data.householdId);
+      allow write: if false; // Only Cloud Functions can write
+    }
+    
+    // Notification logs collection - household members can read, system can write
+    match /notification_logs/{logId} {
+      allow read: if isAuthenticated() && 
+                     isHouseholdMember(resource.data.householdId);
+      allow write: if false; // Only Cloud Functions can write
+    }
+  }
+}
