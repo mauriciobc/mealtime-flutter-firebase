@@ -24,7 +24,9 @@ class FeedingSchedule {
     return {
       'type': type.toString(),
       'intervalHours': intervalHours,
-      'specificTimes': specificTimes?.map((time) => '${time.hour}:${time.minute}').toList(),
+      'specificTimes': specificTimes
+          ?.map((time) => '${time.hour}:${time.minute}')
+          .toList(),
       'isActive': isActive,
       'lastFed': lastFed != null ? Timestamp.fromDate(lastFed!) : null,
       'notes': notes,
@@ -37,12 +39,13 @@ class FeedingSchedule {
           ? ScheduleType.specificTimes
           : ScheduleType.fixedInterval,
       intervalHours: map['intervalHours'],
-      specificTimes: (map['specificTimes'] as List<dynamic>?)
-          ?.map((timeStr) {
-            final parts = timeStr.split(':');
-            return TimeOfDay(hour: int.parse(parts[0]), minute: int.parse(parts[1]));
-          })
-          .toList(),
+      specificTimes: (map['specificTimes'] as List<dynamic>?)?.map((timeStr) {
+        final parts = timeStr.split(':');
+        return TimeOfDay(
+          hour: int.parse(parts[0]),
+          minute: int.parse(parts[1]),
+        );
+      }).toList(),
       isActive: map['isActive'] ?? true,
       lastFed: (map['lastFed'] as Timestamp?)?.toDate(),
       notes: map['notes'],
@@ -52,6 +55,7 @@ class FeedingSchedule {
 
 class Cat {
   final String id;
+  final String householdId; // Added householdId
   final String name;
   final String? photoUrl;
   final DateTime? birthdate;
@@ -63,6 +67,7 @@ class Cat {
 
   Cat({
     required this.id,
+    required this.householdId, // Added householdId
     required this.name,
     this.photoUrl,
     this.birthdate,
@@ -73,10 +78,51 @@ class Cat {
     required this.schedule,
   });
 
+  Cat copyWith({
+    String? id,
+    String? householdId,
+    String? name,
+    String? photoUrl,
+    DateTime? birthdate,
+    double? currentWeight,
+    String? dietaryRestrictions,
+    String? medicalNotes,
+    List<String>? groups,
+    FeedingSchedule? schedule,
+  }) {
+    return Cat(
+      id: id ?? this.id,
+      householdId: householdId ?? this.householdId,
+      name: name ?? this.name,
+      photoUrl: photoUrl ?? this.photoUrl,
+      birthdate: birthdate ?? this.birthdate,
+      currentWeight: currentWeight ?? this.currentWeight,
+      dietaryRestrictions: dietaryRestrictions ?? this.dietaryRestrictions,
+      medicalNotes: medicalNotes ?? this.medicalNotes,
+      groups: groups ?? this.groups,
+      schedule: schedule ?? this.schedule,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'householdId': householdId,
+      'name': name,
+      'photoUrl': photoUrl,
+      'birthdate': birthdate?.toIso8601String(),
+      'currentWeight': currentWeight,
+      'dietaryRestrictions': dietaryRestrictions,
+      'medicalNotes': medicalNotes,
+      'groups': groups,
+      'schedule': schedule.toMap(),
+    };
+  }
+
   factory Cat.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data() as Map<String, dynamic>;
     return Cat(
       id: doc.id,
+      householdId: data['householdId'] ?? '',
       name: data['name'] ?? '',
       photoUrl: data['photoUrl'],
       birthdate: (data['birthdate'] as Timestamp?)?.toDate(),
@@ -89,12 +135,16 @@ class Cat {
           : FeedingSchedule(type: ScheduleType.fixedInterval, intervalHours: 8),
     );
   }
-    factory Cat.fromMap(Map<String, dynamic> data, String id) {
+
+  factory Cat.fromMap(Map<String, dynamic> data, String id) {
     return Cat(
       id: id,
+      householdId: data['householdId'] ?? '',
       name: data['name'] ?? '',
       photoUrl: data['photoUrl'],
-      birthdate: data['birthdate'] != null ? DateTime.parse(data['birthdate']) : null,
+      birthdate: data['birthdate'] != null
+          ? DateTime.parse(data['birthdate'])
+          : null,
       currentWeight: (data['currentWeight'] as num?)?.toDouble(),
       dietaryRestrictions: data['dietaryRestrictions'],
       medicalNotes: data['medicalNotes'],
@@ -112,7 +162,7 @@ class WeightEntry {
 
   WeightEntry({required this.date, required this.weight});
 
-    factory WeightEntry.fromFirestore(DocumentSnapshot doc) {
+  factory WeightEntry.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data() as Map<String, dynamic>;
     return WeightEntry(
       date: (data['date'] as Timestamp).toDate(),

@@ -45,11 +45,13 @@ class _JoinHouseholdScreenState extends State<JoinHouseholdScreen> {
       if (success) {
         // Recarregar households do usuário
         final households = await databaseService.getUserHouseholds().first;
-        if(mounted) {
+        if (mounted) {
           context.read<HouseholdProvider>().setUserHouseholds(households);
-        
+
           if (households.isNotEmpty) {
-            context.read<HouseholdProvider>().setCurrentHousehold(households.last);
+            context.read<HouseholdProvider>().setCurrentHousehold(
+              households.last,
+            );
           }
 
           Navigator.of(context).pushReplacement(

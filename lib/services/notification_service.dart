@@ -9,24 +9,18 @@ class NotificationService {
   NotificationService._internal();
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
 
   bool _initialized = false;
 
-  // Initialize notification service
   Future<void> initialize() async {
     if (_initialized) return;
 
     try {
-      // Initialize local notifications
       await _initializeLocalNotifications();
-      
-      // Request permissions
       await requestPermissions();
-      
-      // Configure FCM
       await _configureFCM();
-      
       _initialized = true;
       developer.log('NotificationService initialized successfully');
     } catch (e) {
@@ -34,16 +28,17 @@ class NotificationService {
     }
   }
 
-  // Initialize local notifications
   Future<void> _initializeLocalNotifications() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
-    
-    const initSettings = InitializationSettings(
+    const AndroidInitializationSettings androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
+    const DarwinInitializationSettings iosSettings =
+        DarwinInitializationSettings(
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        );
+
+    const InitializationSettings initSettings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
     );
@@ -54,28 +49,18 @@ class NotificationService {
     );
   }
 
-  // Configure Firebase Cloud Messaging
   Future<void> _configureFCM() async {
-    // Handle background messages
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    
-    // Handle foreground messages
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-    
-    // Handle notification taps when app is in background
     FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
-    
-    // Handle notification taps when app is terminated
     final initialMessage = await _firebaseMessaging.getInitialMessage();
     if (initialMessage != null) {
       _handleNotificationTap(initialMessage);
     }
   }
 
-  // Request notification permissions
   Future<bool> requestPermissions() async {
     try {
-      // Request FCM permissions
       final fcmSettings = await _firebaseMessaging.requestPermission(
         alert: true,
         announcement: false,
@@ -86,12 +71,10 @@ class NotificationService {
         sound: true,
       );
 
-      // Request local notification permissions (Android)
       if (fcmSettings.authorizationStatus == AuthorizationStatus.authorized) {
-        await _localNotifications.requestPermissions();
         return true;
       }
-      
+
       return false;
     } catch (e) {
       developer.log('Error requesting permissions: $e');
@@ -99,7 +82,6 @@ class NotificationService {
     }
   }
 
-  // Subscribe to household notifications
   Future<void> subscribeToHousehold(String householdId) async {
     try {
       await _firebaseMessaging.subscribeToTopic('household_$householdId');
@@ -109,7 +91,6 @@ class NotificationService {
     }
   }
 
-  // Unsubscribe from household notifications
   Future<void> unsubscribeFromHousehold(String householdId) async {
     try {
       await _firebaseMessaging.unsubscribeFromTopic('household_$householdId');
@@ -119,7 +100,6 @@ class NotificationService {
     }
   }
 
-  // Schedule local notification for feeding reminder
   Future<void> scheduleFeedingReminder({
     required String catId,
     required String catName,
@@ -128,7 +108,7 @@ class NotificationService {
   }) async {
     try {
       await _localNotifications.zonedSchedule(
-        catId.hashCode, // Use catId hash as notification ID
+        catId.hashCode,
         'Hora da alimentação! 🐱',
         '$catName precisa ser alimentado${notes != null ? ': $notes' : ''}',
         tz.TZDateTime.from(scheduledTime, tz.local),
@@ -136,7 +116,8 @@ class NotificationService {
           android: AndroidNotificationDetails(
             'feeding_reminders',
             'Lembretes de Alimentação',
-            channelDescription: 'Notificações para lembrar de alimentar os gatos',
+            channelDescription:
+                'Notificações para lembrar de alimentar os gatos',
             importance: Importance.high,
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
@@ -148,16 +129,16 @@ class NotificationService {
           ),
         ),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       );
-      
-      developer.log('Scheduled feeding reminder for $catName at $scheduledTime');
+
+      developer.log(
+        'Scheduled feeding reminder for $catName at $scheduledTime',
+      );
     } catch (e) {
       developer.log('Error scheduling feeding reminder: $e');
     }
   }
 
-  // Schedule weight reminder
   Future<void> scheduleWeightReminder({
     required String catId,
     required String catName,
@@ -166,7 +147,7 @@ class NotificationService {
     try {
       DateTime scheduledTime;
       final now = DateTime.now();
-      
+
       switch (frequency) {
         case 'daily':
           scheduledTime = DateTime(now.year, now.month, now.day + 1, 9, 0);
@@ -191,7 +172,7 @@ class NotificationService {
             'weight_reminders',
             'Lembretes de Peso',
             channelDescription: 'Notificações para lembrar de pesar os gatos',
-            importance: Importance.medium,
+            importance: Importance.max,
             priority: Priority.defaultPriority,
             icon: '@mipmap/ic_launcher',
           ),
@@ -202,16 +183,14 @@ class NotificationService {
           ),
         ),
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       );
-      
+
       developer.log('Scheduled weight reminder for $catName ($frequency)');
     } catch (e) {
       developer.log('Error scheduling weight reminder: $e');
     }
   }
 
-  // Cancel feeding reminder
   Future<void> cancelFeedingReminder(String catId) async {
     try {
       await _localNotifications.cancel(catId.hashCode);
@@ -221,7 +200,6 @@ class NotificationService {
     }
   }
 
-  // Cancel weight reminder
   Future<void> cancelWeightReminder(String catId) async {
     try {
       await _localNotifications.cancel('${catId}_weight'.hashCode);
@@ -231,7 +209,6 @@ class NotificationService {
     }
   }
 
-  // Send immediate local notification
   Future<void> showImmediateNotification({
     required String title,
     required String body,
@@ -264,11 +241,9 @@ class NotificationService {
     }
   }
 
-  // Handle foreground messages
   void _handleForegroundMessage(RemoteMessage message) {
     developer.log('Received foreground message: ${message.messageId}');
-    
-    // Show local notification for foreground messages
+
     if (message.notification != null) {
       showImmediateNotification(
         title: message.notification!.title ?? 'MealTime',
@@ -278,11 +253,9 @@ class NotificationService {
     }
   }
 
-  // Handle notification taps
   void _handleNotificationTap(RemoteMessage message) {
     developer.log('Notification tapped: ${message.messageId}');
-    
-    // Handle different notification types based on data
+
     final data = message.data;
     if (data.containsKey('type')) {
       switch (data['type']) {
@@ -299,50 +272,42 @@ class NotificationService {
     }
   }
 
-  // Handle local notification taps
   void _onNotificationTapped(NotificationResponse response) {
     developer.log('Local notification tapped: ${response.payload}');
-    
-    // Handle local notification taps
+
     if (response.payload != null) {
       // Parse payload and navigate accordingly
-      // This would typically involve navigation logic
     }
   }
 
-  // Handle feeding reminder tap
   void _handleFeedingReminderTap(Map<String, dynamic> data) {
     final catId = data['catId'];
     final householdId = data['householdId'];
-    
+
     if (catId != null && householdId != null) {
-      // Navigate to feeding screen
       developer.log('Navigate to feeding screen for cat: $catId');
     }
   }
 
-  // Handle weight reminder tap
   void _handleWeightReminderTap(Map<String, dynamic> data) {
     final catId = data['catId'];
-    
+
     if (catId != null) {
-      // Navigate to weight logging screen
       developer.log('Navigate to weight logging screen for cat: $catId');
     }
   }
 
-  // Handle escalation alert tap
   void _handleEscalationAlertTap(Map<String, dynamic> data) {
     final householdId = data['householdId'];
     final catId = data['catId'];
-    
+
     if (householdId != null) {
-      // Navigate to household or cat detail screen
-      developer.log('Navigate to escalation alert for household: $householdId, cat: $catId');
+      developer.log(
+        'Navigate to escalation alert for household: $householdId, cat: $catId',
+      );
     }
   }
 
-  // Get FCM token
   Future<String?> getFCMToken() async {
     try {
       return await _firebaseMessaging.getToken();
@@ -352,7 +317,6 @@ class NotificationService {
     }
   }
 
-  // Clear all notifications
   Future<void> clearAllNotifications() async {
     try {
       await _localNotifications.cancelAll();
@@ -363,8 +327,7 @@ class NotificationService {
   }
 }
 
-// Background message handler (must be top-level function)
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   developer.log('Handling background message: ${message.messageId}');
-  // Background message handling logic
 }

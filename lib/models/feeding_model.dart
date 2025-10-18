@@ -41,7 +41,9 @@ class Feeding {
       catId: map['catId'] ?? '',
       householdId: map['householdId'] ?? '',
       fedBy: map['fedBy'] ?? '',
-      timestamp: DateTime.parse(map['timestamp'] ?? DateTime.now().toIso8601String()),
+      timestamp: DateTime.parse(
+        map['timestamp'] ?? DateTime.now().toIso8601String(),
+      ),
       portionSize: map['portionSize']?.toDouble(),
       notes: map['notes'],
       foodType: map['foodType'],

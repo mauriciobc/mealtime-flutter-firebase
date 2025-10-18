@@ -8,14 +8,18 @@ class StorageService {
   final ImagePicker _imagePicker = ImagePicker();
 
   // Upload cat photo
-  Future<String?> uploadCatPhoto(String catId, String householdId, XFile imageFile) async {
+  Future<String?> uploadCatPhoto(
+    String householdId,
+    String catId,
+    XFile imageFile,
+  ) async {
     try {
       final file = File(imageFile.path);
       final fileName = '$catId.jpg';
       final path = 'cat_photos/$householdId/$fileName';
-      
+
       final ref = _storage.ref().child(path);
-      
+
       // Upload file
       final uploadTask = await ref.putFile(
         file,
@@ -28,10 +32,10 @@ class StorageService {
           },
         ),
       );
-      
+
       // Get download URL
       final downloadUrl = await uploadTask.ref.getDownloadURL();
-      
+
       developer.log('Cat photo uploaded successfully: $downloadUrl');
       return downloadUrl;
     } catch (e) {
@@ -44,17 +48,17 @@ class StorageService {
   Future<void> deleteCatPhoto(String photoUrl) async {
     try {
       if (photoUrl.isEmpty) return;
-      
+
       // Extract path from URL
       final uri = Uri.parse(photoUrl);
       final path = uri.pathSegments.join('/');
-      
+
       // Remove leading 'o/' from path if present
       final cleanPath = path.startsWith('o/') ? path.substring(2) : path;
-      
+
       final ref = _storage.ref().child(cleanPath);
       await ref.delete();
-      
+
       developer.log('Cat photo deleted successfully: $photoUrl');
     } catch (e) {
       developer.log('Error deleting cat photo: $e');
@@ -111,21 +115,21 @@ class StorageService {
     try {
       final fileSize = File(file.path).lengthSync();
       const maxSize = 5 * 1024 * 1024; // 5MB
-      
+
       if (fileSize > maxSize) {
         developer.log('Image file too large: $fileSize bytes');
         return false;
       }
-      
+
       // Check file extension
       final extension = file.path.toLowerCase().split('.').last;
       const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-      
+
       if (!allowedExtensions.contains(extension)) {
         developer.log('Invalid image format: $extension');
         return false;
       }
-      
+
       return true;
     } catch (e) {
       developer.log('Error validating image file: $e');
@@ -138,13 +142,13 @@ class StorageService {
     try {
       final ref = _storage.ref().child('cat_photos/$householdId');
       final listResult = await ref.listAll();
-      
+
       int totalSize = 0;
       for (final item in listResult.items) {
         final metadata = await item.getMetadata();
         totalSize += metadata.size ?? 0;
       }
-      
+
       return totalSize;
     } catch (e) {
       developer.log('Error getting storage usage: $e');
@@ -153,11 +157,14 @@ class StorageService {
   }
 
   // Clean up orphaned photos
-  Future<void> cleanupOrphanedPhotos(String householdId, List<String> validCatIds) async {
+  Future<void> cleanupOrphanedPhotos(
+    String householdId,
+    List<String> validCatIds,
+  ) async {
     try {
       final ref = _storage.ref().child('cat_photos/$householdId');
       final listResult = await ref.listAll();
-      
+
       for (final item in listResult.items) {
         final fileName = item.name.split('.').first; // Remove .jpg extension
         if (!validCatIds.contains(fileName)) {

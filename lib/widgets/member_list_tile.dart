@@ -23,10 +23,7 @@ class MemberListTile extends StatelessWidget {
             ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.surfaceContainerHighest,
         child: isCurrentUser
-            ? Icon(
-                Icons.person,
-                color: Theme.of(context).colorScheme.onPrimary,
-              )
+            ? Icon(Icons.person, color: Theme.of(context).colorScheme.onPrimary)
             : Text(
                 member.displayName?.isNotEmpty == true
                     ? member.displayName![0].toUpperCase()
@@ -47,10 +44,7 @@ class MemberListTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (member.email != null)
-            Text(
-              member.email!,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
+            Text(member.email!, style: Theme.of(context).textTheme.bodySmall),
           Text(
             'Entrou em ${_formatDate(member.joinedAt)}',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -68,10 +62,7 @@ class MemberListTile extends StatelessWidget {
             PopupMenuButton<String>(
               onSelected: onRoleChanged,
               itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'member',
-                  child: Text('Membro'),
-                ),
+                const PopupMenuItem(value: 'member', child: Text('Membro')),
                 const PopupMenuItem(
                   value: 'admin',
                   child: Text('Administrador'),

@@ -53,12 +53,14 @@ class _FeedingFrequencyChartState extends State<FeedingFrequencyChart> {
       final endDate = DateTime.now();
       final startDate = _getStartDate(endDate);
 
-      final feedings = await databaseService.getFeedingsByHousehold(
-        widget.householdId,
-        startDate: startDate,
-        endDate: endDate,
-        limit: 1000,
-      ).first;
+      final feedings = await databaseService
+          .getFeedingsByHousehold(
+            widget.householdId,
+            startDate: startDate,
+            endDate: endDate,
+            limit: 1000,
+          )
+          .first;
 
       setState(() {
         _feedings = widget.catId != null
@@ -139,10 +141,12 @@ class _FeedingFrequencyChartState extends State<FeedingFrequencyChart> {
               child: BarChart(
                 BarChartData(
                   alignment: BarChartAlignment.spaceAround,
-                  maxY: chartData.values.fold(0, (a, b) => a > b ? a : b).toDouble() + 1,
-                  barTouchData: BarTouchData(
-                    enabled: false,
-                  ),
+                  maxY:
+                      chartData.values
+                          .fold(0, (a, b) => a > b ? a : b)
+                          .toDouble() +
+                      1,
+                  barTouchData: BarTouchData(enabled: false),
                   titlesData: FlTitlesData(
                     show: true,
                     rightTitles: const AxisTitles(
@@ -208,7 +212,7 @@ class _FeedingFrequencyChartState extends State<FeedingFrequencyChart> {
 
   Map<String, int> _prepareChartData() {
     final Map<String, int> dailyCount = {};
-    
+
     for (final feeding in _feedings) {
       final date = DateTime(
         feeding.timestamp.year,
@@ -219,10 +223,9 @@ class _FeedingFrequencyChartState extends State<FeedingFrequencyChart> {
       dailyCount[dateKey] = (dailyCount[dateKey] ?? 0) + 1;
     }
 
-    // Fill missing dates with 0
     final startDate = _getStartDate(DateTime.now());
     final endDate = DateTime.now();
-    
+
     for (int i = 0; i <= endDate.difference(startDate).inDays; i++) {
       final date = startDate.add(Duration(days: i));
       final dateKey = _formatDate(date);
@@ -231,7 +234,6 @@ class _FeedingFrequencyChartState extends State<FeedingFrequencyChart> {
       }
     }
 
-    // Sort by date
     final sortedEntries = dailyCount.entries.toList()
       ..sort((a, b) => a.key.compareTo(b.key));
 
@@ -242,7 +244,7 @@ class _FeedingFrequencyChartState extends State<FeedingFrequencyChart> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    
+
     if (date == today) {
       return 'Hoje';
     } else if (date == yesterday) {
@@ -290,25 +292,23 @@ class _FeedingFrequencyChartState extends State<FeedingFrequencyChart> {
     );
   }
 
-  Widget _buildStatItem(BuildContext context, String label, String value, IconData icon) {
+  Widget _buildStatItem(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+  ) {
     return Column(
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
         const SizedBox(height: 4),
         Text(
           value,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

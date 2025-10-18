@@ -11,7 +11,8 @@ class HouseholdSelectionScreen extends StatefulWidget {
   const HouseholdSelectionScreen({super.key});
 
   @override
-  State<HouseholdSelectionScreen> createState() => _HouseholdSelectionScreenState();
+  State<HouseholdSelectionScreen> createState() =>
+      _HouseholdSelectionScreenState();
 }
 
 class _HouseholdSelectionScreenState extends State<HouseholdSelectionScreen> {
@@ -76,10 +77,12 @@ class _HouseholdSelectionScreenState extends State<HouseholdSelectionScreen> {
               if (households.length == 1) {
                 // Se há apenas uma casa, selecionar automaticamente
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if(mounted){
+                  if (mounted) {
                     householdProvider.setCurrentHousehold(households.first);
                     Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => const MainScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const MainScreen(),
+                      ),
                     );
                   }
                 });
@@ -178,9 +181,13 @@ class _HouseholdSelectionScreenState extends State<HouseholdSelectionScreen> {
                 child: HouseholdCard(
                   household: household,
                   onTap: () {
-                    context.read<HouseholdProvider>().setCurrentHousehold(household);
+                    context.read<HouseholdProvider>().setCurrentHousehold(
+                      household,
+                    );
                     Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (context) => const MainScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const MainScreen(),
+                      ),
                     );
                   },
                 ),

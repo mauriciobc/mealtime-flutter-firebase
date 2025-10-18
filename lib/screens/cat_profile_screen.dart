@@ -9,16 +9,14 @@ import 'package:mealtime/screens/feeding_history_screen.dart';
 class CatProfileScreen extends StatefulWidget {
   final Cat cat;
 
-  const CatProfileScreen({
-    super.key,
-    required this.cat,
-  });
+  const CatProfileScreen({super.key, required this.cat});
 
   @override
   State<CatProfileScreen> createState() => _CatProfileScreenState();
 }
 
-class _CatProfileScreenState extends State<CatProfileScreen> with TickerProviderStateMixin {
+class _CatProfileScreenState extends State<CatProfileScreen>
+    with TickerProviderStateMixin {
   late TabController _tabController;
   Cat? _updatedCat;
 
@@ -38,7 +36,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
   @override
   Widget build(BuildContext context) {
     final cat = _updatedCat ?? widget.cat;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(cat.name),
@@ -124,7 +122,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
                         : null,
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Name and basic info
                   Text(
                     cat.name,
@@ -132,7 +130,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
-                  
+
                   if (cat.birthdate != null) ...[
                     Text(
                       'Idade: ${_calculateAge(cat.birthdate!)}',
@@ -140,7 +138,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
                     ),
                     const SizedBox(height: 4),
                   ],
-                  
+
                   if (cat.currentWeight != null) ...[
                     Text(
                       'Peso atual: ${cat.currentWeight!.toStringAsFixed(1)} kg',
@@ -166,7 +164,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 16),
-                    
+
                     if (cat.dietaryRestrictions != null) ...[
                       _buildInfoRow(
                         context,
@@ -176,7 +174,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
                       ),
                       const SizedBox(height: 12),
                     ],
-                    
+
                     if (cat.medicalNotes != null) ...[
                       _buildInfoRow(
                         context,
@@ -211,7 +209,9 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
                       children: cat.groups!.map((group) {
                         return Chip(
                           label: Text(group),
-                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primaryContainer,
                         );
                       }).toList(),
                     ),
@@ -237,7 +237,10 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
                       ),
                       const Spacer(),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: cat.schedule.isActive
                               ? Colors.green
@@ -256,7 +259,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
                     ],
                   ),
                   const SizedBox(height: 16),
-                  
+
                   if (cat.schedule.isActive) ...[
                     if (cat.schedule.type == ScheduleType.fixedInterval) ...[
                       _buildInfoRow(
@@ -265,15 +268,19 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
                         'Intervalo',
                         'A cada ${cat.schedule.intervalHours} horas',
                       ),
-                    ] else if (cat.schedule.type == ScheduleType.specificTimes) ...[
+                    ] else if (cat.schedule.type ==
+                        ScheduleType.specificTimes) ...[
                       _buildInfoRow(
                         context,
                         Icons.schedule,
                         'Horários',
-                        cat.schedule.specificTimes?.map((t) => t.format(context)).join(', ') ?? 'Não configurado',
+                        cat.schedule.specificTimes
+                                ?.map((t) => t.format(context))
+                                .join(', ') ??
+                            'Não configurado',
                       ),
                     ],
-                    
+
                     if (cat.schedule.lastFed != null) ...[
                       const SizedBox(height: 12),
                       _buildInfoRow(
@@ -461,17 +468,21 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
                     ] else ...[
                       Text(
                         'Nunca alimentado',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
                       ),
                     ],
                   ] else ...[
                     Text(
                       'Horário desativado',
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
                     ),
                   ],
                 ],
@@ -483,15 +494,16 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
     );
   }
 
-  Widget _buildInfoRow(BuildContext context, IconData icon, String label, String value) {
+  Widget _buildInfoRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: Theme.of(context).colorScheme.primary,
-        ),
+        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -504,10 +516,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                value,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
+              Text(value, style: Theme.of(context).textTheme.bodyMedium),
             ],
           ),
         ),
@@ -520,7 +529,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
     final age = now.difference(birthdate);
     final years = age.inDays ~/ 365;
     final months = (age.inDays % 365) ~/ 30;
-    
+
     if (years > 0) {
       return months > 0 ? '$years anos e $months meses' : '$years anos';
     } else {
@@ -531,7 +540,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
   String _formatDateTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays} dia${difference.inDays != 1 ? 's' : ''} atrás';
     } else if (difference.inHours > 0) {
@@ -543,13 +552,16 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
 
   String _getNextFeedingTime(Cat cat) {
     if (!cat.schedule.isActive) return 'Horário desativado';
-    
+
     final now = DateTime.now();
     final lastFed = cat.schedule.lastFed;
-    
-    if (cat.schedule.type == ScheduleType.fixedInterval && cat.schedule.intervalHours != null) {
+
+    if (cat.schedule.type == ScheduleType.fixedInterval &&
+        cat.schedule.intervalHours != null) {
       if (lastFed != null) {
-        final nextFeeding = lastFed.add(Duration(hours: cat.schedule.intervalHours!));
+        final nextFeeding = lastFed.add(
+          Duration(hours: cat.schedule.intervalHours!),
+        );
         if (nextFeeding.isAfter(now)) {
           final diff = nextFeeding.difference(now);
           if (diff.inHours > 0) {
@@ -563,12 +575,22 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
       } else {
         return 'Nunca alimentado';
       }
-    } else if (cat.schedule.type == ScheduleType.specificTimes && cat.schedule.specificTimes != null) {
+    } else if (cat.schedule.type == ScheduleType.specificTimes &&
+        cat.schedule.specificTimes != null) {
       // Find next specific time
-      final todayTimes = cat.schedule.specificTimes!.map((time) {
-        return DateTime(now.year, now.month, now.day, time.hour, time.minute);
-      }).where((time) => time.isAfter(now)).toList();
-      
+      final todayTimes = cat.schedule.specificTimes!
+          .map((time) {
+            return DateTime(
+              now.year,
+              now.month,
+              now.day,
+              time.hour,
+              time.minute,
+            );
+          })
+          .where((time) => time.isAfter(now))
+          .toList();
+
       if (todayTimes.isNotEmpty) {
         final nextTime = todayTimes.first;
         final diff = nextTime.difference(now);
@@ -581,15 +603,15 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
         return 'Amanhã';
       }
     }
-    
+
     return 'Não configurado';
   }
 
   void _showEditDialog(BuildContext context) {
     // TODO: Implement edit dialog
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Edição em desenvolvimento')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Edição em desenvolvimento')));
   }
 
   void _showDeleteDialog(BuildContext context) {
@@ -597,7 +619,9 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Excluir Gato'),
-        content: Text('Tem certeza que deseja excluir ${widget.cat.name}? Esta ação não pode ser desfeita.'),
+        content: Text(
+          'Tem certeza que deseja excluir ${widget.cat.name}? Esta ação não pode ser desfeita.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),

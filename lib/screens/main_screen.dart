@@ -35,20 +35,15 @@ class _MainScreenState extends State<MainScreen> {
     return Consumer<HouseholdProvider>(
       builder: (context, householdProvider, child) {
         final household = householdProvider.currentHousehold;
-        
+
         if (household == null) {
           return const Scaffold(
-            body: Center(
-              child: Text('Nenhuma casa selecionada'),
-            ),
+            body: Center(child: Text('Nenhuma casa selecionada')),
           );
         }
 
         return Scaffold(
-          body: IndexedStack(
-            index: _selectedIndex,
-            children: _widgetOptions,
-          ),
+          body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
           bottomNavigationBar: CustomBottomNavBar(
             currentIndex: _selectedIndex,
             onTap: _onItemTapped,

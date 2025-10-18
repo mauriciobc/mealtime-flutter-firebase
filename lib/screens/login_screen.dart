@@ -67,7 +67,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderSide: BorderSide.none,
                     ),
                   ),
-                  validator: (val) => val!.length < 6 ? 'Enter a password 6+ chars long' : null,
+                  validator: (val) =>
+                      val!.length < 6 ? 'Enter a password 6+ chars long' : null,
                   onChanged: (val) {
                     setState(() => password = val);
                   },
@@ -77,7 +78,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: const Text('Sign In'),
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      dynamic result = await auth.signInWithEmailAndPassword(email, password);
+                      dynamic result = await auth.signInWithEmailAndPassword(
+                        email,
+                        password,
+                      );
                       if (result == null) {
                         if (mounted) {
                           setState(() {
@@ -98,7 +102,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const SignUpScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const SignUpScreen(),
+                      ),
                     );
                   },
                 ),

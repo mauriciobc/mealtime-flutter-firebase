@@ -8,10 +8,7 @@ import 'package:mealtime/widgets/feeding_log_tile.dart';
 class FeedingHistoryScreen extends StatefulWidget {
   final Cat cat;
 
-  const FeedingHistoryScreen({
-    super.key,
-    required this.cat,
-  });
+  const FeedingHistoryScreen({super.key, required this.cat});
 
   @override
   State<FeedingHistoryScreen> createState() => _FeedingHistoryScreenState();
@@ -38,16 +35,18 @@ class _FeedingHistoryScreenState extends State<FeedingHistoryScreen> {
       if (user == null) return;
 
       final databaseService = DatabaseService(uid: user.uid);
-      final feedings = await databaseService.getFeedingsByCat(widget.cat.id, limit: 100).first;
-      
-      if(mounted) {
+      final feedings = await databaseService
+          .getFeedingsByCat(widget.cat.id, limit: 100)
+          .first;
+
+      if (mounted) {
         setState(() {
           _feedings = feedings;
           _isLoading = false;
         });
       }
     } catch (e) {
-      if(mounted) {
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
@@ -70,22 +69,10 @@ class _FeedingHistoryScreenState extends State<FeedingHistoryScreen> {
               });
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'all',
-                child: Text('Todos'),
-              ),
-              const PopupMenuItem(
-                value: 'today',
-                child: Text('Hoje'),
-              ),
-              const PopupMenuItem(
-                value: 'week',
-                child: Text('Esta Semana'),
-              ),
-              const PopupMenuItem(
-                value: 'month',
-                child: Text('Este Mês'),
-              ),
+              const PopupMenuItem(value: 'all', child: Text('Todos')),
+              const PopupMenuItem(value: 'today', child: Text('Hoje')),
+              const PopupMenuItem(value: 'week', child: Text('Esta Semana')),
+              const PopupMenuItem(value: 'month', child: Text('Este Mês')),
             ],
           ),
         ],
@@ -93,8 +80,8 @@ class _FeedingHistoryScreenState extends State<FeedingHistoryScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _feedings.isEmpty
-              ? _buildEmptyState()
-              : _buildFeedingsList(),
+          ? _buildEmptyState()
+          : _buildFeedingsList(),
     );
   }
 
@@ -171,7 +158,7 @@ class _FeedingHistoryScreenState extends State<FeedingHistoryScreen> {
 
   List<Feeding> _getFilteredFeedings() {
     final now = DateTime.now();
-    
+
     switch (_selectedFilter) {
       case 'today':
         final today = DateTime(now.year, now.month, now.day);

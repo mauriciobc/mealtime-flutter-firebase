@@ -50,7 +50,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       borderSide: BorderSide.none,
                     ),
                   ),
-                  validator: (val) => val!.isEmpty ? 'Enter a display name' : null,
+                  validator: (val) =>
+                      val!.isEmpty ? 'Enter a display name' : null,
                   onChanged: (val) {
                     setState(() => displayName = val);
                   },
@@ -83,7 +84,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       borderSide: BorderSide.none,
                     ),
                   ),
-                  validator: (val) => val!.length < 6 ? 'Enter a password 6+ chars long' : null,
+                  validator: (val) =>
+                      val!.length < 6 ? 'Enter a password 6+ chars long' : null,
                   onChanged: (val) {
                     setState(() => password = val);
                   },
@@ -93,7 +95,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: const Text('Sign Up'),
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      dynamic result = await _auth.registerWithEmailAndPassword(email, password, displayName);
+                      dynamic result = await _auth.registerWithEmailAndPassword(
+                        email,
+                        password,
+                        displayName,
+                      );
                       if (result == null) {
                         if (mounted) {
                           setState(() {

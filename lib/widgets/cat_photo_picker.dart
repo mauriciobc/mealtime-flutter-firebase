@@ -31,10 +31,7 @@ class CatPhotoPicker extends StatelessWidget {
         child: selectedImage != null
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: Image.file(
-                  selectedImage!,
-                  fit: BoxFit.cover,
-                ),
+                child: Image.file(selectedImage!, fit: BoxFit.cover),
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,

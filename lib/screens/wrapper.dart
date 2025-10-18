@@ -36,7 +36,7 @@ class _WrapperState extends State<Wrapper> {
     try {
       final databaseService = DatabaseService(uid: user.uid);
       final households = await databaseService.getUserHouseholds().first;
-      
+
       if (mounted) {
         context.read<HouseholdProvider>().setUserHouseholds(households);
         setState(() {
@@ -97,7 +97,7 @@ class _WrapperState extends State<Wrapper> {
 
     // User authenticated and households loaded - check if has households
     final householdProvider = context.watch<HouseholdProvider>();
-    
+
     if (householdProvider.userHouseholds.isEmpty) {
       // No households - show household selection (which will show create/join options)
       return const HouseholdSelectionScreen();

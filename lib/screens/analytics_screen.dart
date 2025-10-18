@@ -15,7 +15,8 @@ class AnalyticsScreen extends StatefulWidget {
   State<AnalyticsScreen> createState() => _AnalyticsScreenState();
 }
 
-class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderStateMixin {
+class _AnalyticsScreenState extends State<AnalyticsScreen>
+    with TickerProviderStateMixin {
   late TabController _tabController;
   String _selectedPeriod = '7d';
   Cat? _selectedCat;
@@ -119,7 +120,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildFeedingTab(BuildContext context, DatabaseService databaseService, String householdId) {
+  Widget _buildFeedingTab(
+    BuildContext context,
+    DatabaseService databaseService,
+    String householdId,
+  ) {
     return StreamBuilder<List<Cat>>(
       stream: databaseService.getCatsByHousehold(householdId),
       builder: (context, catsSnapshot) {
@@ -137,7 +142,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Cat selector
               if (cats.length > 1) ...[
                 Text(
                   'Selecionar Gato',
@@ -145,7 +149,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<Cat>(
-                  value: _selectedCat,
+                  initialValue: _selectedCat,
                   decoration: const InputDecoration(
                     hintText: 'Todos os gatos',
                     border: OutlineInputBorder(),
@@ -155,10 +159,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
                       value: null,
                       child: Text('Todos os gatos'),
                     ),
-                    ...cats.map((cat) => DropdownMenuItem<Cat>(
-                      value: cat,
-                      child: Text(cat.name),
-                    )),
+                    ...cats.map(
+                      (cat) => DropdownMenuItem<Cat>(
+                        value: cat,
+                        child: Text(cat.name),
+                      ),
+                    ),
                   ],
                   onChanged: (cat) {
                     setState(() {
@@ -168,8 +174,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
                 ),
                 const SizedBox(height: 24),
               ],
-
-              // Feeding frequency chart
               Text(
                 'Frequência de Alimentação',
                 style: Theme.of(context).textTheme.titleLarge,
@@ -181,8 +185,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
                 period: _selectedPeriod,
               ),
               const SizedBox(height: 32),
-
-              // Recent feedings
               Text(
                 'Alimentações Recentes',
                 style: Theme.of(context).textTheme.titleLarge,
@@ -196,7 +198,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildWeightTab(BuildContext context, DatabaseService databaseService, String householdId) {
+  Widget _buildWeightTab(
+    BuildContext context,
+    DatabaseService databaseService,
+    String householdId,
+  ) {
     return StreamBuilder<List<Cat>>(
       stream: databaseService.getCatsByHousehold(householdId),
       builder: (context, catsSnapshot) {
@@ -214,7 +220,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Cat selector
               if (cats.length > 1) ...[
                 Text(
                   'Selecionar Gato',
@@ -222,7 +227,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<Cat>(
-                  value: _selectedCat,
+                  initialValue: _selectedCat,
                   decoration: const InputDecoration(
                     hintText: 'Todos os gatos',
                     border: OutlineInputBorder(),
@@ -232,10 +237,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
                       value: null,
                       child: Text('Todos os gatos'),
                     ),
-                    ...cats.map((cat) => DropdownMenuItem<Cat>(
-                      value: cat,
-                      child: Text(cat.name),
-                    )),
+                    ...cats.map(
+                      (cat) => DropdownMenuItem<Cat>(
+                        value: cat,
+                        child: Text(cat.name),
+                      ),
+                    ),
                   ],
                   onChanged: (cat) {
                     setState(() {
@@ -245,8 +252,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
                 ),
                 const SizedBox(height: 24),
               ],
-
-              // Weight trend chart
               Text(
                 'Tendência de Peso',
                 style: Theme.of(context).textTheme.titleLarge,
@@ -264,22 +269,20 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildSummaryTab(BuildContext context, DatabaseService databaseService, String householdId) {
+  Widget _buildSummaryTab(
+    BuildContext context,
+    DatabaseService databaseService,
+    String householdId,
+  ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Summary cards
-          Text(
-            'Resumo Geral',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('Resumo Geral', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
           _buildSummaryCards(context, databaseService, householdId),
           const SizedBox(height: 32),
-
-          // Quick stats
           Text(
             'Estatísticas Rápidas',
             style: Theme.of(context).textTheme.titleLarge,
@@ -312,7 +315,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildRecentFeedings(BuildContext context, DatabaseService databaseService, String householdId) {
+  Widget _buildRecentFeedings(
+    BuildContext context,
+    DatabaseService databaseService,
+    String householdId,
+  ) {
     return StreamBuilder<List<Feeding>>(
       stream: databaseService.getFeedingsByHousehold(householdId, limit: 10),
       builder: (context, snapshot) {
@@ -338,9 +345,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
             itemBuilder: (context, index) {
               final feeding = feedings[index];
               return ListTile(
-                leading: const CircleAvatar(
-                  child: Icon(Icons.restaurant),
-                ),
+                leading: const CircleAvatar(child: Icon(Icons.restaurant)),
                 title: Text('Gato ID: ${feeding.catId}'),
                 subtitle: Text(_formatDateTime(feeding.timestamp)),
                 trailing: feeding.portionSize != null
@@ -354,7 +359,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildSummaryCards(BuildContext context, DatabaseService databaseService, String householdId) {
+  Widget _buildSummaryCards(
+    BuildContext context,
+    DatabaseService databaseService,
+    String householdId,
+  ) {
     return StreamBuilder<List<Cat>>(
       stream: databaseService.getCatsByHousehold(householdId),
       builder: (context, snapshot) {
@@ -363,7 +372,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
         }
 
         final cats = snapshot.data ?? [];
-        
+
         return Row(
           children: [
             Expanded(
@@ -423,7 +432,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     );
   }
 
-  Widget _buildQuickStats(BuildContext context, DatabaseService databaseService, String householdId) {
+  Widget _buildQuickStats(
+    BuildContext context,
+    DatabaseService databaseService,
+    String householdId,
+  ) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -451,9 +464,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
           Text(label),
           Text(
             value,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -476,7 +489,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
   String _formatDateTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays} dia${difference.inDays != 1 ? 's' : ''} atrás';
     } else if (difference.inHours > 0) {
@@ -486,7 +499,11 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
     }
   }
 
-  void _showExportDialog(BuildContext context, DatabaseService databaseService, String householdId) {
+  void _showExportDialog(
+    BuildContext context,
+    DatabaseService databaseService,
+    String householdId,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -500,14 +517,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: Implement CSV export
             },
             child: const Text('CSV'),
           ),
           FilledButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: Implement PDF export
             },
             child: const Text('PDF'),
           ),

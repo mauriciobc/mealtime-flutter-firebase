@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mealtime/services/database_service.dart';
-import 'package:mealtime/models/cat_model.dart';
+import 'package:mealtime/models/cat_model.dart' hide WeightEntry;
 import 'package:mealtime/models/weight_entry_model.dart';
 import 'package:mealtime/screens/weight_log_screen.dart';
 import 'package:mealtime/widgets/weight_chart.dart';
@@ -10,16 +10,14 @@ import 'package:mealtime/widgets/weight_entry_tile.dart';
 class WeightHistoryScreen extends StatefulWidget {
   final Cat cat;
 
-  const WeightHistoryScreen({
-    super.key,
-    required this.cat,
-  });
+  const WeightHistoryScreen({super.key, required this.cat});
 
   @override
   State<WeightHistoryScreen> createState() => _WeightHistoryScreenState();
 }
 
-class _WeightHistoryScreenState extends State<WeightHistoryScreen> with TickerProviderStateMixin {
+class _WeightHistoryScreenState extends State<WeightHistoryScreen>
+    with TickerProviderStateMixin {
   late TabController _tabController;
   List<WeightEntry> _weightEntries = [];
   bool _isLoading = true;
@@ -47,16 +45,25 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> with TickerPr
       if (user == null) return;
 
       final databaseService = DatabaseService(uid: user.uid);
-      final entries = await databaseService.getWeightHistory(widget.cat.id, limit: 100).first;
-      
-      setState(() {
-        _weightEntries = entries;
-        _isLoading = false;
-      });
+      final entries = await databaseService
+          .getWeightHistory(widget.cat.id, limit: 100)
+          .first;
+
+      if (mounted) {
+        setState(() {
+          _weightEntries = entries;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error loading weight history: $e')),
+        );
+      }
     }
   }
 
@@ -69,12 +76,13 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> with TickerPr
         elevation: 0,
         actions: [
           IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
+            onPressed: () async {
+              await Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => WeightLogScreen(cat: widget.cat),
                 ),
               );
+              _loadWeightHistory();
             },
             icon: const Icon(Icons.add),
             tooltip: 'Registrar Peso',
@@ -90,10 +98,7 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> with TickerPr
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildChartTab(),
-          _buildListTab(),
-        ],
+        children: [_buildChartTab(), _buildListTab()],
       ),
     );
   }
@@ -111,11 +116,8 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> with TickerPr
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          // Weight chart
           WeightChart(weightEntries: _weightEntries),
           const SizedBox(height: 24),
-
-          // Quick stats
           _buildQuickStats(),
         ],
       ),
@@ -175,12 +177,13 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> with TickerPr
             ),
             const SizedBox(height: 24),
             FilledButton.icon(
-              onPressed: () {
-                Navigator.of(context).push(
+              onPressed: () async {
+                await Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => WeightLogScreen(cat: widget.cat),
                   ),
                 );
+                _loadWeightHistory();
               },
               icon: const Icon(Icons.add),
               label: const Text('Registrar Primeiro Peso'),
@@ -259,16 +262,17 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> with TickerPr
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, {Color? color}) {
+  Widget _buildStatItem(
+    String label,
+    String value,
+    IconData icon, {
+    Color? color,
+  }) {
     final effectiveColor = color ?? Theme.of(context).colorScheme.primary;
-    
+
     return Column(
       children: [
-        Icon(
-          icon,
-          size: 24,
-          color: effectiveColor,
-        ),
+        Icon(icon, size: 24, color: effectiveColor),
         const SizedBox(height: 8),
         Text(
           value,
@@ -277,10 +281,7 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> with TickerPr
             color: effectiveColor,
           ),
         ),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

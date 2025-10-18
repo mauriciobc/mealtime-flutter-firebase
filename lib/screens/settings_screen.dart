@@ -26,22 +26,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: ListView(
         children: [
-          // User profile section
           _buildUserSection(context),
-          
-          // Household section
           _buildHouseholdSection(context),
-          
-          // App preferences section
           _buildPreferencesSection(context),
-          
-          // Notifications section
           _buildNotificationsSection(context),
-          
-          // About section
           _buildAboutSection(context),
-          
-          // Danger zone
           _buildDangerZone(context),
         ],
       ),
@@ -50,7 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Widget _buildUserSection(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    
+
     return Card(
       margin: const EdgeInsets.all(16),
       child: Padding(
@@ -58,26 +47,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Perfil',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Perfil', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 16),
             ListTile(
               leading: CircleAvatar(
                 backgroundImage: user?.photoURL != null
                     ? NetworkImage(user!.photoURL!)
                     : null,
-                child: user?.photoURL == null
-                    ? const Icon(Icons.person)
-                    : null,
+                child: user?.photoURL == null ? const Icon(Icons.person) : null,
               ),
               title: Text(user?.displayName ?? 'Usuário'),
               subtitle: Text(user?.email ?? ''),
               trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                // TODO: Navigate to profile edit screen
-              },
+              onTap: () {},
             ),
           ],
         ),
@@ -93,20 +75,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Casa',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Casa', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 16),
             Consumer<HouseholdProvider>(
               builder: (context, householdProvider, child) {
                 final household = householdProvider.currentHousehold;
-                
+
                 return ListTile(
                   leading: const Icon(Icons.home),
                   title: Text(household?.name ?? 'Nenhuma casa selecionada'),
                   subtitle: household != null
-                      ? Text('${household.members.length} membro${household.members.length != 1 ? 's' : ''}')
+                      ? Text(
+                          '${household.members.length} membro${household.members.length != 1 ? 's' : ''}',
+                        )
                       : const Text('Selecione uma casa'),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
@@ -119,7 +100,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     } else {
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => const HouseholdSelectionScreen(),
+                          builder: (context) =>
+                              const HouseholdSelectionScreen(),
                         ),
                       );
                     }
@@ -146,8 +128,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
-            
-            // Theme
             Consumer<ThemeProvider>(
               builder: (context, themeProvider, child) {
                 return ListTile(
@@ -161,16 +141,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               },
             ),
-            
+
             const Divider(),
-            
-            // Language
             Consumer<LanguageProvider>(
               builder: (context, languageProvider, child) {
                 return ListTile(
                   leading: const Icon(Icons.language),
                   title: const Text('Idioma'),
-                  subtitle: Text(_getLanguageText(languageProvider.currentLocale)),
+                  subtitle: Text(
+                    _getLanguageText(
+                      languageProvider.currentLocale ?? const Locale('en'),
+                    ),
+                  ),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     _showLanguageDialog(context, languageProvider);
@@ -178,18 +160,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 );
               },
             ),
-            
             const Divider(),
-            
-            // Timezone
             ListTile(
               leading: const Icon(Icons.schedule),
               title: const Text('Fuso Horário'),
               subtitle: const Text('Automático (Brasil)'),
               trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                // TODO: Implement timezone selection
-              },
+              onTap: () {},
             ),
           ],
         ),
@@ -210,27 +187,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
-            
+
             SwitchListTile(
               secondary: const Icon(Icons.notifications),
               title: const Text('Lembretes de Alimentação'),
-              subtitle: const Text('Receber notificações quando for hora de alimentar'),
-              value: true, // TODO: Get from settings
-              onChanged: (value) {
-                // TODO: Update notification settings
-              },
+              subtitle: const Text(
+                'Receber notificações quando for hora de alimentar',
+              ),
+              value: true,
+              onChanged: (value) {},
             ),
-            
+
             const Divider(),
-            
+
             SwitchListTile(
               secondary: const Icon(Icons.warning),
               title: const Text('Alertas de Atraso'),
-              subtitle: const Text('Notificar quando alimentação estiver atrasada'),
-              value: true, // TODO: Get from settings
-              onChanged: (value) {
-                // TODO: Update notification settings
-              },
+              subtitle: const Text(
+                'Notificar quando alimentação estiver atrasada',
+              ),
+              value: true,
+              onChanged: (value) {},
             ),
           ],
         ),
@@ -246,43 +223,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Sobre',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Sobre', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 16),
-            
+
             ListTile(
               leading: const Icon(Icons.info),
               title: const Text('Versão do App'),
               subtitle: const Text('1.0.0'),
-              onTap: () {
-                // TODO: Show app info
-              },
+              onTap: () {},
             ),
-            
+
             const Divider(),
-            
+
             ListTile(
               leading: const Icon(Icons.help),
               title: const Text('Ajuda'),
               subtitle: const Text('Central de ajuda e suporte'),
               trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                // TODO: Navigate to help screen
-              },
+              onTap: () {},
             ),
-            
+
             const Divider(),
-            
+
             ListTile(
               leading: const Icon(Icons.privacy_tip),
               title: const Text('Privacidade'),
               subtitle: const Text('Política de privacidade e termos'),
               trailing: const Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                // TODO: Navigate to privacy screen
-              },
+              onTap: () {},
             ),
           ],
         ),
@@ -306,7 +274,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
+
             ListTile(
               leading: Icon(
                 Icons.logout,
@@ -321,7 +289,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: Text(
                 'Fazer logout da sua conta',
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onErrorContainer.withAlpha(178),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onErrorContainer.withAlpha(178),
                 ),
               ),
               onTap: () {
@@ -345,9 +315,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  String _getLanguageText(Locale? locale) {
-    if (locale == null) return 'Sistema';
-    
+  String _getLanguageText(Locale locale) {
     switch (locale.languageCode) {
       case 'pt':
         return 'Português (Brasil)';
@@ -368,37 +336,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            RadioListTile<ThemeMode>(
+            ListTile(
               title: const Text('Claro'),
-              value: ThemeMode.light,
-              groupValue: themeProvider.themeMode,
-              onChanged: (value) {
-                if (value != null) {
-                  themeProvider.setThemeMode(value);
+              leading: Radio<ThemeMode>(
+                value: ThemeMode.light,
+                groupValue: themeProvider.themeMode,
+                onChanged: (value) {
+                  if (value != null) {
+                    themeProvider.setThemeMode(value);
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+              onTap: () {
+                  themeProvider.setThemeMode(ThemeMode.light);
                   Navigator.of(context).pop();
-                }
               },
             ),
-            RadioListTile<ThemeMode>(
+            ListTile(
               title: const Text('Escuro'),
-              value: ThemeMode.dark,
-              groupValue: themeProvider.themeMode,
-              onChanged: (value) {
-                if (value != null) {
-                  themeProvider.setThemeMode(value);
+              leading: Radio<ThemeMode>(
+                value: ThemeMode.dark,
+                groupValue: themeProvider.themeMode,
+                onChanged: (value) {
+                  if (value != null) {
+                    themeProvider.setThemeMode(value);
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+              onTap: () {
+                  themeProvider.setThemeMode(ThemeMode.dark);
                   Navigator.of(context).pop();
-                }
               },
             ),
-            RadioListTile<ThemeMode>(
+            ListTile(
               title: const Text('Sistema'),
-              value: ThemeMode.system,
-              groupValue: themeProvider.themeMode,
-              onChanged: (value) {
-                if (value != null) {
-                  themeProvider.setThemeMode(value);
+              leading: Radio<ThemeMode>(
+                value: ThemeMode.system,
+                groupValue: themeProvider.themeMode,
+                onChanged: (value) {
+                  if (value != null) {
+                    themeProvider.setThemeMode(value);
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+              onTap: () {
+                  themeProvider.setThemeMode(ThemeMode.system);
                   Navigator.of(context).pop();
-                }
               },
             ),
           ],
@@ -407,7 +393,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showLanguageDialog(BuildContext context, LanguageProvider languageProvider) {
+  void _showLanguageDialog(
+    BuildContext context,
+    LanguageProvider languageProvider,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -415,48 +404,70 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            RadioListTile<String>(
+            ListTile(
               title: const Text('Sistema'),
-              value: 'system',
-              groupValue: languageProvider.currentLocale?.languageCode ?? 'system',
-              onChanged: (value) {
-                if (value == 'system') {
-                  languageProvider.setLanguage('system');
+              leading: Radio<Locale?>(
+                value: null,
+                groupValue: languageProvider.currentLocale,
+                onChanged: (value) {
+                  languageProvider.setLanguage(null);
                   Navigator.of(context).pop();
-                }
+                },
+              ),
+              onTap: () {
+                  languageProvider.setLanguage(null);
+                  Navigator.of(context).pop();
               },
             ),
-            RadioListTile<String>(
+            ListTile(
               title: const Text('Português (Brasil)'),
-              value: 'pt',
-              groupValue: languageProvider.currentLocale?.languageCode ?? 'system',
-              onChanged: (value) {
-                if (value != null) {
-                  languageProvider.setLanguage('pt-BR');
+              leading: Radio<Locale?>(
+                value: const Locale('pt', 'BR'),
+                groupValue: languageProvider.currentLocale,
+                onChanged: (value) {
+                  if (value != null) {
+                    languageProvider.setLanguage(value);
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+              onTap: () {
+                  languageProvider.setLanguage(const Locale('pt', 'BR'));
                   Navigator.of(context).pop();
-                }
               },
             ),
-            RadioListTile<String>(
+            ListTile(
               title: const Text('English (US)'),
-              value: 'en',
-              groupValue: languageProvider.currentLocale?.languageCode ?? 'system',
-              onChanged: (value) {
-                if (value != null) {
-                  languageProvider.setLanguage('en-US');
+              leading: Radio<Locale?>(
+                value: const Locale('en', 'US'),
+                groupValue: languageProvider.currentLocale,
+                onChanged: (value) {
+                  if (value != null) {
+                    languageProvider.setLanguage(value);
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+              onTap: () {
+                  languageProvider.setLanguage(const Locale('en', 'US'));
                   Navigator.of(context).pop();
-                }
               },
             ),
-            RadioListTile<String>(
+            ListTile(
               title: const Text('Español (España)'),
-              value: 'es',
-              groupValue: languageProvider.currentLocale?.languageCode ?? 'system',
-              onChanged: (value) {
-                if (value != null) {
-                  languageProvider.setLanguage('es-ES');
+              leading: Radio<Locale?>(
+                value: const Locale('es', 'ES'),
+                groupValue: languageProvider.currentLocale,
+                onChanged: (value) {
+                  if (value != null) {
+                    languageProvider.setLanguage(value);
+                    Navigator.of(context).pop();
+                  }
+                },
+              ),
+              onTap: () {
+                  languageProvider.setLanguage(const Locale('es', 'ES'));
                   Navigator.of(context).pop();
-                }
               },
             ),
           ],
@@ -478,7 +489,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           FilledButton(
             onPressed: () async {
-              if(mounted){
+              if (mounted) {
                 Navigator.of(context).pop();
                 await AuthService().signOut();
               }

@@ -95,9 +95,7 @@ class CatsListScreen extends StatelessWidget {
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const AddCatScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const AddCatScreen()),
               );
             },
             icon: const Icon(Icons.add),
@@ -135,9 +133,7 @@ class CatsListScreen extends StatelessWidget {
           FilledButton.icon(
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const AddCatScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const AddCatScreen()),
               );
             },
             icon: const Icon(Icons.add),

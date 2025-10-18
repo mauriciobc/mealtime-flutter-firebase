@@ -44,8 +44,12 @@ class UserModel {
       householdIds: List<String>.from(map['householdIds'] ?? []),
       preferredLanguage: map['preferredLanguage'] ?? 'pt-BR',
       timezone: map['timezone'] ?? 'America/Sao_Paulo',
-      createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
-      lastActiveAt: DateTime.parse(map['lastActiveAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        map['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
+      lastActiveAt: DateTime.parse(
+        map['lastActiveAt'] ?? DateTime.now().toIso8601String(),
+      ),
     );
   }
 

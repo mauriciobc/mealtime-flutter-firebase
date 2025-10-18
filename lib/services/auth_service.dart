@@ -20,7 +20,10 @@ class AuthService {
   // sign in with email and password
   Future signInWithEmailAndPassword(String email, String password) async {
     try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      UserCredential result = await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       User? user = result.user;
       return _userFromFirebaseUser(user);
     } catch (error) {
@@ -30,19 +33,26 @@ class AuthService {
   }
 
   // register with email and password
-  Future<User?> registerWithEmailAndPassword(String email, String password, String displayName) async {
+  Future<User?> registerWithEmailAndPassword(
+    String email,
+    String password,
+    String displayName,
+  ) async {
     try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       User? user = result.user;
-      
+
       if (user != null) {
         // Update display name
         await user.updateDisplayName(displayName);
-        
+
         // Create user document in Firestore
         await _createUserDocument(user, displayName);
       }
-      
+
       return _userFromFirebaseUser(user);
     } catch (error) {
       developer.log('Error registering', error: error);
@@ -86,11 +96,17 @@ class AuthService {
   }) async {
     try {
       final user = _auth.currentUser;
-      if (user == null) return;
+      if (user == null) {
+        return;
+      }
 
       final updateData = <String, dynamic>{};
-      if (preferredLanguage != null) updateData['preferredLanguage'] = preferredLanguage;
-      if (timezone != null) updateData['timezone'] = timezone;
+      if (preferredLanguage != null) {
+        updateData['preferredLanguage'] = preferredLanguage;
+      }
+      if (timezone != null) {
+        updateData['timezone'] = timezone;
+      }
       if (displayName != null) {
         updateData['displayName'] = displayName;
         await user.updateDisplayName(displayName);

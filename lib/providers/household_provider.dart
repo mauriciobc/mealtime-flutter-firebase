@@ -24,7 +24,9 @@ class HouseholdProvider with ChangeNotifier {
   }
 
   void updateHousehold(Household updatedHousehold) {
-    final index = _userHouseholds.indexWhere((h) => h.id == updatedHousehold.id);
+    final index = _userHouseholds.indexWhere(
+      (h) => h.id == updatedHousehold.id,
+    );
     if (index != -1) {
       _userHouseholds[index] = updatedHousehold;
       if (_currentHousehold?.id == updatedHousehold.id) {
@@ -37,7 +39,9 @@ class HouseholdProvider with ChangeNotifier {
   void removeHousehold(String householdId) {
     _userHouseholds.removeWhere((h) => h.id == householdId);
     if (_currentHousehold?.id == householdId) {
-      _currentHousehold = _userHouseholds.isNotEmpty ? _userHouseholds.first : null;
+      _currentHousehold = _userHouseholds.isNotEmpty
+          ? _userHouseholds.first
+          : null;
     }
     notifyListeners();
   }

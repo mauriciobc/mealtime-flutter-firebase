@@ -5,11 +5,7 @@ class WeightEntryTile extends StatelessWidget {
   final WeightEntry entry;
   final VoidCallback? onTap;
 
-  const WeightEntryTile({
-    super.key,
-    required this.entry,
-    this.onTap,
-  });
+  const WeightEntryTile({super.key, required this.entry, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +20,9 @@ class WeightEntryTile extends StatelessWidget {
         ),
         title: Text(
           '${entry.weight.toStringAsFixed(1)} kg',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,18 +68,19 @@ class WeightEntryTile extends StatelessWidget {
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
     final entryDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
-    
+
     String dateText;
     if (entryDate == today) {
       dateText = 'Hoje';
     } else if (entryDate == yesterday) {
       dateText = 'Ontem';
     } else {
-      dateText = '${dateTime.day.toString().padLeft(2, '0')}/'
+      dateText =
+          '${dateTime.day.toString().padLeft(2, '0')}/'
           '${dateTime.month.toString().padLeft(2, '0')}/'
           '${dateTime.year}';
     }
-    
+
     return '$dateText às ${dateTime.hour.toString().padLeft(2, '0')}:'
         '${dateTime.minute.toString().padLeft(2, '0')}';
   }

@@ -4,10 +4,7 @@ import 'package:mealtime/models/cat_model.dart';
 class NextFeedingCountdown extends StatefulWidget {
   final List<Cat> cats;
 
-  const NextFeedingCountdown({
-    super.key,
-    required this.cats,
-  });
+  const NextFeedingCountdown({super.key, required this.cats});
 
   @override
   State<NextFeedingCountdown> createState() => _NextFeedingCountdownState();
@@ -33,7 +30,7 @@ class _NextFeedingCountdownState extends State<NextFeedingCountdown> {
   @override
   Widget build(BuildContext context) {
     final nextFeeding = _getNextFeeding();
-    
+
     if (nextFeeding == null) {
       return const SizedBox.shrink();
     }
@@ -115,41 +112,58 @@ class _NextFeedingCountdownState extends State<NextFeedingCountdown> {
   }
 
   DateTime? _getNextFeedingTime(Cat cat, DateTime now) {
-    if (cat.schedule.type == ScheduleType.fixedInterval && cat.schedule.intervalHours != null) {
+    if (cat.schedule.type == ScheduleType.fixedInterval &&
+        cat.schedule.intervalHours != null) {
       if (cat.schedule.lastFed != null) {
-        return cat.schedule.lastFed!.add(Duration(hours: cat.schedule.intervalHours!));
+        return cat.schedule.lastFed!.add(
+          Duration(hours: cat.schedule.intervalHours!),
+        );
       } else {
         // If never fed, assume first feeding is due now
         return now;
       }
-    } else if (cat.schedule.type == ScheduleType.specificTimes && cat.schedule.specificTimes != null) {
+    } else if (cat.schedule.type == ScheduleType.specificTimes &&
+        cat.schedule.specificTimes != null) {
       // Find next specific time today
-      final todayTimes = cat.schedule.specificTimes!.map((time) {
-        final [hour, minute] = time.split(':').map(int.parse);
-        return DateTime(now.year, now.month, now.day, hour, minute);
-      }).where((time) => time.isAfter(now)).toList();
-      
+      final todayTimes = cat.schedule.specificTimes!
+          .map((time) {
+            return DateTime(
+              now.year,
+              now.month,
+              now.day,
+              time.hour,
+              time.minute,
+            );
+          })
+          .where((time) => time.isAfter(now))
+          .toList();
+
       if (todayTimes.isNotEmpty) {
         return todayTimes.first;
       } else {
         // Check tomorrow's first time
         final tomorrowTimes = cat.schedule.specificTimes!.map((time) {
-          final [hour, minute] = time.split(':').map(int.parse);
-          return DateTime(now.year, now.month, now.day + 1, hour, minute);
+          return DateTime(
+            now.year,
+            now.month,
+            now.day + 1,
+            time.hour,
+            time.minute,
+          );
         }).toList();
-        
+
         if (tomorrowTimes.isNotEmpty) {
           return tomorrowTimes.first;
         }
       }
     }
-    
+
     return null;
   }
 
   String _formatTimeDifference(DateTime target, DateTime now) {
     final difference = target.difference(now);
-    
+
     if (difference.isNegative) {
       final absDiff = difference.abs();
       if (absDiff.inHours > 0) {

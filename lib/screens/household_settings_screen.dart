@@ -11,42 +11,64 @@ class HouseholdSettingsScreen extends StatefulWidget {
   const HouseholdSettingsScreen({super.key});
 
   @override
-  State<HouseholdSettingsScreen> createState() => _HouseholdSettingsScreenState();
+  State<HouseholdSettingsScreen> createState() =>
+      _HouseholdSettingsScreenState();
 }
 
 class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
   bool _isLoading = false;
 
   Future<void> _leaveHousehold() async {
-    final household = context.read<HouseholdProvider>().currentHousehold;
-    if (household == null) return;
-
+    // Show confirmation dialog before proceeding
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Sair da Casa'),
-        content: Text(
-          'Tem certeza que deseja sair da casa "${household.name}"? '
-          'Você perderá acesso a todos os dados dos gatos e alimentações.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
+      builder: (context) {
+        final household =
+            Provider.of<HouseholdProvider>(context, listen: false)
+                .currentHousehold;
+        return AlertDialog(
+          title: const Text('Sair da Casa'),
+          content: Text(
+            'Tem certeza que deseja sair da casa "${household?.name}"? '
+            'Você perderá acesso a todos os dados dos gatos e alimentações.',
           ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Sair'),
-          ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Sair'),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed != true) return;
 
+    // Set loading state
     setState(() {
       _isLoading = true;
     });
+
+    // Access context-dependent objects before async gap
+    final householdProvider =
+        Provider.of<HouseholdProvider>(context, listen: false);
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final theme = Theme.of(context);
+    final household = householdProvider.currentHousehold;
+
+    if (household == null) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+      return;
+    }
 
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -55,22 +77,20 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
       final databaseService = DatabaseService(uid: user.uid);
       await databaseService.leaveHousehold(household.id);
 
-      if(mounted) {
-        context.read<HouseholdProvider>().removeHousehold(household.id);
+      householdProvider.removeHousehold(household.id);
 
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HouseholdSelectionScreen()),
-        );
-      }
+      navigator.pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HouseholdSelectionScreen(),
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao sair da casa: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Erro ao sair da casa: $e'),
+          backgroundColor: theme.colorScheme.error,
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -81,63 +101,81 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
   }
 
   Future<void> _deleteHousehold() async {
-    final household = context.read<HouseholdProvider>().currentHousehold;
-    if (household == null) return;
-
+    // Show confirmation dialog before proceeding
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Excluir Casa'),
-        content: Text(
-          'Tem certeza que deseja excluir permanentemente a casa "${household.name}"? '
-          'Esta ação não pode ser desfeita e todos os dados serão perdidos.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancelar'),
+      builder: (context) {
+        final household =
+            Provider.of<HouseholdProvider>(context, listen: false)
+                .currentHousehold;
+        return AlertDialog(
+          title: const Text('Excluir Casa'),
+          content: Text(
+            'Tem certeza que deseja excluir permanentemente a casa "${household?.name}"? '
+            'Esta ação não pode ser desfeita e todos os dados serão perdidos.',
           ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
             ),
-            child: const Text('Excluir'),
-          ),
-        ],
-      ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+              ),
+              child: const Text('Excluir'),
+            ),
+          ],
+        );
+      },
     );
 
     if (confirmed != true) return;
 
+    // Set loading state
     setState(() {
       _isLoading = true;
     });
+
+    // Access context-dependent objects before async gap
+    final householdProvider =
+        Provider.of<HouseholdProvider>(context, listen: false);
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final theme = Theme.of(context);
+    final household = householdProvider.currentHousehold;
+
+    if (household == null) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+      return;
+    }
 
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
-      // final databaseService = DatabaseService(uid: user.uid);
-      // TODO: Implement delete household method
-      // await databaseService.deleteHousehold(household.id);
+      final databaseService = DatabaseService(uid: user.uid);
+      await databaseService.deleteHousehold(household.id);
 
-      if(mounted) {
-        context.read<HouseholdProvider>().removeHousehold(household.id);
+      householdProvider.removeHousehold(household.id);
 
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HouseholdSelectionScreen()),
-        );
-      }
+      navigator.pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => const HouseholdSelectionScreen(),
+        ),
+      );
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao excluir casa: $e'),
-            backgroundColor: Theme.of(context).colorScheme.error,
-          ),
-        );
-      }
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Erro ao excluir casa: $e'),
+          backgroundColor: theme.colorScheme.error,
+        ),
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -184,7 +222,6 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Household info card
                       Card(
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -195,12 +232,16 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                                 children: [
                                   Icon(
                                     Icons.home,
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
                                     household.name,
-                                    style: Theme.of(context).textTheme.titleLarge,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleLarge,
                                   ),
                                 ],
                               ),
@@ -217,12 +258,16 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                                   Icon(
                                     Icons.people,
                                     size: 16,
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
                                     '${household.members.length} membro${household.members.length != 1 ? 's' : ''}',
-                                    style: Theme.of(context).textTheme.bodySmall,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
                                   ),
                                 ],
                               ),
@@ -231,8 +276,6 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // Invite code section
                       Text(
                         'Código de Convite',
                         style: Theme.of(context).textTheme.titleMedium,
@@ -255,21 +298,28 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                                   vertical: 12,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
                                   children: [
                                     Text(
                                       household.inviteCode ?? 'N/A',
-                                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                        fontFamily: 'monospace',
-                                        letterSpacing: 2,
-                                      ),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            fontFamily: 'monospace',
+                                            letterSpacing: 2,
+                                          ),
                                     ),
                                     const Spacer(),
                                     IconButton(
-                                      onPressed: () => _copyInviteCode(household.inviteCode ?? ''),
+                                      onPressed: () => _copyInviteCode(
+                                        household.inviteCode ?? '',
+                                      ),
                                       icon: const Icon(Icons.copy),
                                       tooltip: 'Copiar código',
                                     ),
@@ -281,8 +331,6 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // Members section
                       Text(
                         'Membros',
                         style: Theme.of(context).textTheme.titleMedium,
@@ -294,31 +342,37 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                             return MemberListTile(
                               member: member,
                               isCurrentUser: member.userId == currentUser?.uid,
-                              canChangeRole: isAdmin && member.userId != currentUser?.uid,
+                              canChangeRole:
+                                  isAdmin && member.userId != currentUser?.uid,
                               onRoleChanged: (newRole) async {
+                                final householdProvider = context.read<HouseholdProvider>();
+                                final scaffoldMessenger = ScaffoldMessenger.of(context);
+                                final theme = Theme.of(context);
                                 try {
-                                  final databaseService = DatabaseService(uid: currentUser!.uid);
+                                  final databaseService = DatabaseService(
+                                    uid: currentUser!.uid,
+                                  );
                                   await databaseService.updateMemberRole(
                                     household.id,
                                     member.userId,
                                     newRole,
                                   );
-                                  // Refresh household data
-                                  if(mounted) {
-                                    final updatedHousehold = await databaseService.getHousehold(household.id);
-                                    if (mounted && updatedHousehold != null) {
-                                      context.read<HouseholdProvider>().setCurrentHousehold(updatedHousehold);
-                                    }
+
+                                  final updatedHousehold = await databaseService
+                                      .getHousehold(household.id);
+
+                                  if (updatedHousehold != null) {
+                                    householdProvider
+                                        .setCurrentHousehold(updatedHousehold);
                                   }
                                 } catch (e) {
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Erro ao alterar role: $e'),
-                                        backgroundColor: Theme.of(context).colorScheme.error,
-                                      ),
-                                    );
-                                  }
+                                  scaffoldMessenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text('Erro ao alterar role: $e'),
+                                      backgroundColor:
+                                          theme.colorScheme.error,
+                                    ),
+                                  );
                                 }
                               },
                             );
@@ -326,13 +380,12 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
-                      // Danger zone
                       Text(
                         'Zona de Perigo',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                            ),
                       ),
                       const SizedBox(height: 8),
                       Card(
@@ -347,7 +400,9 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                                   color: Theme.of(context).colorScheme.error,
                                 ),
                                 title: const Text('Sair da Casa'),
-                                subtitle: const Text('Você perderá acesso aos dados'),
+                                subtitle: const Text(
+                                  'Você perderá acesso aos dados',
+                                ),
                                 onTap: _leaveHousehold,
                               ),
                               if (isAdmin) ...[
@@ -358,7 +413,9 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                                     color: Theme.of(context).colorScheme.error,
                                   ),
                                   title: const Text('Excluir Casa'),
-                                  subtitle: const Text('Esta ação não pode ser desfeita'),
+                                  subtitle: const Text(
+                                    'Esta ação não pode ser desfeita',
+                                  ),
                                   onTap: _deleteHousehold,
                                 ),
                               ],

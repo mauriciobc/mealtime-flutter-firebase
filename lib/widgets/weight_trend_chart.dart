@@ -50,26 +50,31 @@ class _WeightTrendChartState extends State<WeightTrendChart> {
       if (user == null) return;
 
       final databaseService = DatabaseService(uid: user.uid);
-      
+
       if (widget.catId != null) {
-        // Load for specific cat
-        final entries = await databaseService.getWeightHistory(widget.catId!, limit: 100).first;
-        setState(() {
-          _weightEntries = entries;
-          _isLoading = false;
-        });
+        final entries = await databaseService
+            .getWeightHistory(widget.catId!, limit: 100)
+            .first;
+        if (mounted) {
+          setState(() {
+            _weightEntries = entries;
+            _isLoading = false;
+          });
+        }
       } else {
-        // Load for all cats in household
-        // TODO: Implement getWeightHistoryByHousehold method
+        if (mounted) {
+          setState(() {
+            _weightEntries = [];
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         setState(() {
-          _weightEntries = [];
           _isLoading = false;
         });
       }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
@@ -137,7 +142,9 @@ class _WeightTrendChartState extends State<WeightTrendChart> {
                     horizontalInterval: 0.1,
                     getDrawingHorizontalLine: (value) {
                       return FlLine(
-                        color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outline.withAlpha(51),
                         strokeWidth: 1,
                       );
                     },
@@ -200,7 +207,9 @@ class _WeightTrendChartState extends State<WeightTrendChart> {
                       ),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withAlpha(26),
                       ),
                     ),
                   ],
@@ -216,7 +225,6 @@ class _WeightTrendChartState extends State<WeightTrendChart> {
   }
 
   List<WeightEntry> _prepareChartData() {
-    // Sort by date and limit to period
     final sortedEntries = List<WeightEntry>.from(_weightEntries)
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
@@ -245,7 +253,7 @@ class _WeightTrendChartState extends State<WeightTrendChart> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    
+
     if (date == today) {
       return 'Hoje';
     } else if (date == yesterday) {
@@ -260,7 +268,9 @@ class _WeightTrendChartState extends State<WeightTrendChart> {
 
     final weights = entries.map((e) => e.weight).toList();
     final currentWeight = weights.last;
-    final previousWeight = weights.length > 1 ? weights[weights.length - 2] : currentWeight;
+    final previousWeight = weights.length > 1
+        ? weights[weights.length - 2]
+        : currentWeight;
     final weightChange = currentWeight - previousWeight;
     final averageWeight = weights.fold(0.0, (a, b) => a + b) / weights.length;
     final minWeight = weights.fold(weights.first, (a, b) => a < b ? a : b);
@@ -313,14 +323,10 @@ class _WeightTrendChartState extends State<WeightTrendChart> {
     Color? color,
   }) {
     final effectiveColor = color ?? Theme.of(context).colorScheme.primary;
-    
+
     return Column(
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: effectiveColor,
-        ),
+        Icon(icon, size: 20, color: effectiveColor),
         const SizedBox(height: 4),
         Text(
           value,
@@ -329,10 +335,7 @@ class _WeightTrendChartState extends State<WeightTrendChart> {
             color: effectiveColor,
           ),
         ),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

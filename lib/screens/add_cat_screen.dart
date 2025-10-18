@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,7 +26,7 @@ class _AddCatScreenState extends State<AddCatScreen> {
   final _medicalNotesController = TextEditingController();
   final _groupsController = TextEditingController();
 
-  XFile? _selectedImage;
+  File? _selectedImage;
   DateTime? _selectedBirthdate;
   double? _currentWeight;
   final List<String> _groups = [];
@@ -75,27 +76,16 @@ class _AddCatScreenState extends State<AddCatScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Photo section
               _buildPhotoSection(),
               const SizedBox(height: 24),
-
-              // Basic info section
               _buildBasicInfoSection(),
               const SizedBox(height: 24),
-
-              // Health info section
               _buildHealthInfoSection(),
               const SizedBox(height: 24),
-
-              // Groups section
               _buildGroupsSection(),
               const SizedBox(height: 24),
-
-              // Schedule section
               _buildScheduleSection(),
               const SizedBox(height: 32),
-
-              // Save button
               SizedBox(
                 width: double.infinity,
                 child: FilledButton(
@@ -156,8 +146,6 @@ class _AddCatScreenState extends State<AddCatScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
-            
-            // Name
             TextFormField(
               controller: _nameController,
               decoration: const InputDecoration(
@@ -177,8 +165,6 @@ class _AddCatScreenState extends State<AddCatScreen> {
               },
             ),
             const SizedBox(height: 16),
-
-            // Birthdate
             TextFormField(
               controller: _birthdateController,
               decoration: const InputDecoration(
@@ -207,8 +193,6 @@ class _AddCatScreenState extends State<AddCatScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 16),
-            
-            // Current weight
             TextFormField(
               controller: _weightController,
               decoration: const InputDecoration(
@@ -217,7 +201,9 @@ class _AddCatScreenState extends State<AddCatScreen> {
                 prefixIcon: Icon(Icons.monitor_weight),
                 suffixText: 'kg',
               ),
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               textInputAction: TextInputAction.next,
               onChanged: (value) {
                 _currentWeight = double.tryParse(value);
@@ -236,8 +222,6 @@ class _AddCatScreenState extends State<AddCatScreen> {
               },
             ),
             const SizedBox(height: 16),
-
-            // Dietary restrictions
             TextFormField(
               controller: _dietaryRestrictionsController,
               decoration: const InputDecoration(
@@ -249,8 +233,6 @@ class _AddCatScreenState extends State<AddCatScreen> {
               textInputAction: TextInputAction.next,
             ),
             const SizedBox(height: 16),
-
-            // Medical notes
             TextFormField(
               controller: _medicalNotesController,
               decoration: const InputDecoration(
@@ -274,10 +256,7 @@ class _AddCatScreenState extends State<AddCatScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Grupos',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text('Grupos', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             Text(
               'Organize seus gatos em grupos (ex: filhotes, idosos, especiais)',
@@ -286,8 +265,6 @@ class _AddCatScreenState extends State<AddCatScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            
-            // Groups input
             TextFormField(
               controller: _groupsController,
               decoration: const InputDecoration(
@@ -298,7 +275,8 @@ class _AddCatScreenState extends State<AddCatScreen> {
               ),
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (value) {
-                if (value.trim().isNotEmpty && !_groups.contains(value.trim())) {
+                if (value.trim().isNotEmpty &&
+                    !_groups.contains(value.trim())) {
                   setState(() {
                     _groups.add(value.trim());
                     _groupsController.clear();
@@ -306,8 +284,6 @@ class _AddCatScreenState extends State<AddCatScreen> {
                 }
               },
             ),
-            
-            // Groups list
             if (_groups.isNotEmpty) ...[
               const SizedBox(height: 16),
               Wrap(
@@ -368,7 +344,8 @@ class _AddCatScreenState extends State<AddCatScreen> {
     if (date != null) {
       setState(() {
         _selectedBirthdate = date;
-        _birthdateController.text = '${date.day.toString().padLeft(2, '0')}/'
+        _birthdateController.text =
+            '${date.day.toString().padLeft(2, '0')}/'
             '${date.month.toString().padLeft(2, '0')}/'
             '${date.year}';
       });
@@ -396,35 +373,41 @@ class _AddCatScreenState extends State<AddCatScreen> {
       final databaseService = DatabaseService(uid: user.uid);
       String? photoUrl;
 
-      // Upload photo if selected
       if (_selectedImage != null) {
         final storageService = StorageService();
-        photoUrl = await storageService.uploadCatPhoto(household.id, 'temp', _selectedImage!);
+        photoUrl = await storageService.uploadCatPhoto(
+          household.id,
+          'temp',
+          XFile(_selectedImage!.path),
+        );
       }
 
-      // Prepare cat data
-      final catData = {
-        'name': _nameController.text.trim(),
-        'photoUrl': photoUrl,
-        'birthdate': _selectedBirthdate?.toIso8601String(),
-        'currentWeight': _currentWeight,
-        'dietaryRestrictions': _dietaryRestrictionsController.text.trim().isEmpty
+      final catData = Cat(
+        id: '',
+        householdId: household.id,
+        name: _nameController.text.trim(),
+        photoUrl: photoUrl,
+        birthdate: _selectedBirthdate,
+        currentWeight: _currentWeight,
+        dietaryRestrictions: _dietaryRestrictionsController.text.trim().isEmpty
             ? null
             : _dietaryRestrictionsController.text.trim(),
-        'medicalNotes': _medicalNotesController.text.trim().isEmpty
+        medicalNotes: _medicalNotesController.text.trim().isEmpty
             ? null
             : _medicalNotesController.text.trim(),
-        'groups': _groups.isEmpty ? null : _groups,
-        'schedule': _schedule.toMap(),
-      };
+        groups: _groups.isEmpty ? null : _groups,
+        schedule: _schedule,
+      );
 
-      await databaseService.addCat(household.id, catData);
+      await databaseService.addCat(catData);
 
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${_nameController.text.trim()} foi adicionado com sucesso!'),
+            content: Text(
+              '${_nameController.text.trim()} foi adicionado com sucesso!',
+            ),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );

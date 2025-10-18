@@ -18,7 +18,7 @@ class ScheduleConfigWidget extends StatefulWidget {
 class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
   late ScheduleType _selectedType;
   late int? _intervalHours;
-  late List<String> _specificTimes;
+  late List<TimeOfDay> _specificTimes;
   late bool _isActive;
 
   @override
@@ -47,11 +47,11 @@ class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
             _updateSchedule();
           },
         ),
-        
+
         if (_isActive) ...[
           const Divider(),
           const SizedBox(height: 16),
-          
+
           // Schedule type selection
           Text(
             'Tipo de Horário',
@@ -124,7 +124,10 @@ class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
                     keyboardType: TextInputType.number,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 8,
+                      ),
                     ),
                     onChanged: (value) {
                       _intervalHours = int.tryParse(value);
@@ -170,7 +173,7 @@ class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             if (_specificTimes.isEmpty)
               Container(
                 padding: const EdgeInsets.all(16),
@@ -196,16 +199,25 @@ class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
                     children: [
                       Expanded(
                         child: TextFormField(
-                          initialValue: time,
+                          initialValue:
+                              '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
                           decoration: const InputDecoration(
                             labelText: 'Horário',
                             hintText: 'HH:MM',
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.schedule),
                           ),
-                          onChanged: (value) {
-                            _specificTimes[index] = value;
-                            _updateSchedule();
+                          onTap: () async {
+                            final newTime = await showTimePicker(
+                              context: context,
+                              initialTime: time,
+                            );
+                            if (newTime != null) {
+                              setState(() {
+                                _specificTimes[index] = newTime;
+                              });
+                              _updateSchedule();
+                            }
                           },
                         ),
                       ),
@@ -219,7 +231,7 @@ class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
                   ),
                 );
               }),
-            
+
             const SizedBox(height: 8),
             Text(
               'Formato: HH:MM (ex: 08:00, 18:30)',
@@ -235,7 +247,7 @@ class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
 
   void _addSpecificTime() {
     setState(() {
-      _specificTimes.add('08:00');
+      _specificTimes.add(const TimeOfDay(hour: 8, minute: 0));
     });
     _updateSchedule();
   }
@@ -250,15 +262,19 @@ class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
   void _updateSchedule() {
     final newSchedule = FeedingSchedule(
       type: _selectedType,
-      intervalHours: _selectedType == ScheduleType.fixedInterval ? _intervalHours : null,
-      specificTimes: _selectedType == ScheduleType.specificTimes && _specificTimes.isNotEmpty
+      intervalHours: _selectedType == ScheduleType.fixedInterval
+          ? _intervalHours
+          : null,
+      specificTimes:
+          _selectedType == ScheduleType.specificTimes &&
+              _specificTimes.isNotEmpty
           ? _specificTimes
           : null,
       isActive: _isActive,
       lastFed: widget.schedule.lastFed,
       notes: widget.schedule.notes,
     );
-    
+
     widget.onScheduleChanged(newSchedule);
   }
 }

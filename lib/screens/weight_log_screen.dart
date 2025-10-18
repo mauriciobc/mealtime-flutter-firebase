@@ -6,10 +6,7 @@ import 'package:mealtime/models/cat_model.dart';
 class WeightLogScreen extends StatefulWidget {
   final Cat cat;
 
-  const WeightLogScreen({
-    super.key,
-    required this.cat,
-  });
+  const WeightLogScreen({super.key, required this.cat});
 
   @override
   State<WeightLogScreen> createState() => _WeightLogScreenState();
@@ -71,9 +68,12 @@ class _WeightLogScreenState extends State<WeightLogScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 'Peso atual: ${widget.cat.currentWeight!.toStringAsFixed(1)} kg',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
+                                    ),
                               ),
                             ],
                           ],
@@ -86,10 +86,7 @@ class _WeightLogScreenState extends State<WeightLogScreen> {
               const SizedBox(height: 24),
 
               // Weight input
-              Text(
-                'Novo Peso',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              Text('Novo Peso', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
               TextFormField(
                 controller: _weightController,
@@ -147,16 +144,25 @@ class _WeightLogScreenState extends State<WeightLogScreen> {
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: [
-                  '2.0', '2.5', '3.0', '3.5', '4.0', '4.5', '5.0', '5.5', '6.0'
-                ].map((weight) {
-                  return ActionChip(
-                    label: Text('${weight}kg'),
-                    onPressed: () {
-                      _weightController.text = weight;
-                    },
-                  );
-                }).toList(),
+                children:
+                    [
+                      '2.0',
+                      '2.5',
+                      '3.0',
+                      '3.5',
+                      '4.0',
+                      '4.5',
+                      '5.0',
+                      '5.5',
+                      '6.0',
+                    ].map((weight) {
+                      return ActionChip(
+                        label: Text('${weight}kg'),
+                        onPressed: () {
+                          _weightController.text = weight;
+                        },
+                      );
+                    }).toList(),
               ),
               const SizedBox(height: 32),
 
@@ -211,7 +217,9 @@ class _WeightLogScreenState extends State<WeightLogScreen> {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Peso de ${weight.toStringAsFixed(1)}kg registrado para ${widget.cat.name}!'),
+            content: Text(
+              'Peso de ${weight.toStringAsFixed(1)}kg registrado para ${widget.cat.name}!',
+            ),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );

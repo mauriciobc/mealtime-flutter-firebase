@@ -5,11 +5,7 @@ class ExportDataButton extends StatelessWidget {
   final String householdId;
   final String? catId;
 
-  const ExportDataButton({
-    super.key,
-    required this.householdId,
-    this.catId,
-  });
+  const ExportDataButton({super.key, required this.householdId, this.catId});
 
   @override
   Widget build(BuildContext context) {
@@ -68,16 +64,13 @@ class ExportDataButton extends StatelessWidget {
   void _exportData(BuildContext context, String format) {
     // TODO: Implement actual data export
     // For now, just show a placeholder message
-    
+
     HapticFeedback.lightImpact();
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Exportando dados em $format...'),
-        action: SnackBarAction(
-          label: 'OK',
-          onPressed: () {},
-        ),
+        action: SnackBarAction(label: 'OK', onPressed: () {}),
       ),
     );
 

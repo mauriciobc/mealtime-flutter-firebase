@@ -5,10 +5,7 @@ import 'package:mealtime/models/weight_entry_model.dart';
 class WeightChart extends StatelessWidget {
   final List<WeightEntry> weightEntries;
 
-  const WeightChart({
-    super.key,
-    required this.weightEntries,
-  });
+  const WeightChart({super.key, required this.weightEntries});
 
   @override
   Widget build(BuildContext context) {
@@ -16,9 +13,7 @@ class WeightChart extends StatelessWidget {
       return const Card(
         child: Padding(
           padding: EdgeInsets.all(32.0),
-          child: Center(
-            child: Text('Nenhum dado de peso disponível'),
-          ),
+          child: Center(child: Text('Nenhum dado de peso disponível')),
         ),
       );
     }
@@ -47,7 +42,9 @@ class WeightChart extends StatelessWidget {
                     horizontalInterval: 0.1,
                     getDrawingHorizontalLine: (value) {
                       return FlLine(
-                        color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outline.withOpacity(0.2),
                         strokeWidth: 1,
                       );
                     },
@@ -111,7 +108,9 @@ class WeightChart extends StatelessWidget {
                       ),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withOpacity(0.1),
                       ),
                     ),
                   ],
@@ -126,7 +125,10 @@ class WeightChart extends StatelessWidget {
     );
   }
 
-  Widget _buildTrendInfo(BuildContext context, List<WeightEntry> sortedEntries) {
+  Widget _buildTrendInfo(
+    BuildContext context,
+    List<WeightEntry> sortedEntries,
+  ) {
     if (sortedEntries.length < 2) {
       return const SizedBox.shrink();
     }
@@ -134,7 +136,9 @@ class WeightChart extends StatelessWidget {
     final firstWeight = sortedEntries.first.weight;
     final lastWeight = sortedEntries.last.weight;
     final weightChange = lastWeight - firstWeight;
-    final daysBetween = sortedEntries.last.timestamp.difference(sortedEntries.first.timestamp).inDays;
+    final daysBetween = sortedEntries.last.timestamp
+        .difference(sortedEntries.first.timestamp)
+        .inDays;
 
     return Row(
       children: [
@@ -178,11 +182,7 @@ class WeightChart extends StatelessWidget {
   ) {
     return Column(
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: color,
-        ),
+        Icon(icon, size: 20, color: color),
         const SizedBox(height: 4),
         Text(
           value,
@@ -191,10 +191,7 @@ class WeightChart extends StatelessWidget {
             color: color,
           ),
         ),
-        Text(
-          label,
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
       ],
     );
   }

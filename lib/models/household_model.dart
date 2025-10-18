@@ -34,7 +34,9 @@ class Household {
       id: map['id'] ?? '',
       name: map['name'] ?? '',
       createdBy: map['createdBy'] ?? '',
-      createdAt: DateTime.parse(map['createdAt'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        map['createdAt'] ?? DateTime.now().toIso8601String(),
+      ),
       inviteCode: map['inviteCode'],
       members: (map['members'] as List<dynamic>? ?? [])
           .map((member) => HouseholdMember.fromMap(member))
@@ -64,8 +66,9 @@ class Household {
   }
 
   bool isAdmin(String userId) {
-    return members.any((member) => 
-        member.userId == userId && member.role == 'admin');
+    return members.any(
+      (member) => member.userId == userId && member.role == 'admin',
+    );
   }
 
   bool isMember(String userId) {
@@ -107,7 +110,9 @@ class HouseholdMember {
     return HouseholdMember(
       userId: map['userId'] ?? '',
       role: map['role'] ?? 'member',
-      joinedAt: DateTime.parse(map['joinedAt'] ?? DateTime.now().toIso8601String()),
+      joinedAt: DateTime.parse(
+        map['joinedAt'] ?? DateTime.now().toIso8601String(),
+      ),
       displayName: map['displayName'],
       email: map['email'],
     );

@@ -46,7 +46,9 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
             actions: [
               if (_selectedCats.isNotEmpty)
                 TextButton(
-                  onPressed: _isFeeding ? null : () => _feedSelectedCats(databaseService, household.id),
+                  onPressed: _isFeeding
+                      ? null
+                      : () => _feedSelectedCats(databaseService, household.id),
                   child: _isFeeding
                       ? const SizedBox(
                           width: 16,
@@ -90,7 +92,12 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
                 return _buildEmptyState(context);
               }
 
-              return _buildCatsList(context, cats, databaseService, household.id);
+              return _buildCatsList(
+                context,
+                cats,
+                databaseService,
+                household.id,
+              );
             },
           ),
         );
@@ -126,7 +133,12 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
     );
   }
 
-  Widget _buildCatsList(BuildContext context, List<Cat> cats, DatabaseService databaseService, String householdId) {
+  Widget _buildCatsList(
+    BuildContext context,
+    List<Cat> cats,
+    DatabaseService databaseService,
+    String householdId,
+  ) {
     return Column(
       children: [
         // Next feeding countdown
@@ -169,9 +181,10 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
                         ] else ...[
                           Text(
                             'Horário desativado',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.error,
+                                ),
                           ),
                         ],
                       ],
@@ -187,7 +200,9 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
                         else
                           Icon(
                             Icons.radio_button_unchecked,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         const SizedBox(width: 8),
                         FeedButton(
@@ -219,13 +234,16 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
 
   String _getNextFeedingTime(Cat cat) {
     if (!cat.schedule.isActive) return 'Desativado';
-    
+
     final now = DateTime.now();
     final lastFed = cat.schedule.lastFed;
-    
-    if (cat.schedule.type == ScheduleType.fixedInterval && cat.schedule.intervalHours != null) {
+
+    if (cat.schedule.type == ScheduleType.fixedInterval &&
+        cat.schedule.intervalHours != null) {
       if (lastFed != null) {
-        final nextFeeding = lastFed.add(Duration(hours: cat.schedule.intervalHours!));
+        final nextFeeding = lastFed.add(
+          Duration(hours: cat.schedule.intervalHours!),
+        );
         if (nextFeeding.isAfter(now)) {
           final diff = nextFeeding.difference(now);
           if (diff.inHours > 0) {
@@ -239,12 +257,22 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
       } else {
         return 'Nunca alimentado';
       }
-    } else if (cat.schedule.type == ScheduleType.specificTimes && cat.schedule.specificTimes != null) {
+    } else if (cat.schedule.type == ScheduleType.specificTimes &&
+        cat.schedule.specificTimes != null) {
       // Find next specific time
-      final todayTimes = cat.schedule.specificTimes!.map((time) {
-        return DateTime(now.year, now.month, now.day, time.hour, time.minute);
-      }).where((time) => time.isAfter(now)).toList();
-      
+      final todayTimes = cat.schedule.specificTimes!
+          .map((time) {
+            return DateTime(
+              now.year,
+              now.month,
+              now.day,
+              time.hour,
+              time.minute,
+            );
+          })
+          .where((time) => time.isAfter(now))
+          .toList();
+
       if (todayTimes.isNotEmpty) {
         final nextTime = todayTimes.first;
         final diff = nextTime.difference(now);
@@ -257,11 +285,15 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
         return 'Amanhã';
       }
     }
-    
+
     return 'Não configurado';
   }
 
-  Future<void> _feedSingleCat(Cat cat, DatabaseService databaseService, String householdId) async {
+  Future<void> _feedSingleCat(
+    Cat cat,
+    DatabaseService databaseService,
+    String householdId,
+  ) async {
     setState(() {
       _isFeeding = true;
     });
@@ -302,7 +334,10 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
     }
   }
 
-  Future<void> _feedSelectedCats(DatabaseService databaseService, String householdId) async {
+  Future<void> _feedSelectedCats(
+    DatabaseService databaseService,
+    String householdId,
+  ) async {
     if (_selectedCats.isEmpty) return;
 
     setState(() {
@@ -334,7 +369,7 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
-        
+
         setState(() {
           _selectedCats.clear();
         });

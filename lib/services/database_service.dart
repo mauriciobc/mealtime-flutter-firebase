@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mealtime/models/household_model.dart';
-import 'package:mealtime/models/cat_model.dart';
+import 'package:mealtime/models/cat_model.dart' hide WeightEntry;
 import 'package:mealtime/models/feeding_model.dart';
 import 'package:mealtime/models/weight_entry_model.dart';
+import 'package:mealtime/models/weight_goal_model.dart';
 
 class DatabaseService {
   final String uid;
@@ -18,7 +19,7 @@ class DatabaseService {
     try {
       final householdId = _uuid.v4();
       final inviteCode = _generateInviteCode();
-      
+
       final household = Household(
         id: householdId,
         name: name,
@@ -26,18 +27,16 @@ class DatabaseService {
         createdAt: DateTime.now(),
         inviteCode: inviteCode,
         members: [
-          HouseholdMember(
-            userId: uid,
-            role: 'admin',
-            joinedAt: DateTime.now(),
-          ),
+          HouseholdMember(userId: uid, role: 'admin', joinedAt: DateTime.now()),
         ],
         description: description,
       );
 
-      await _firestore.collection('households').doc(householdId).set(household.toMap());
-      
-      // Add household to user's householdIds
+      await _firestore
+          .collection('households')
+          .doc(householdId)
+          .set(household.toMap());
+
       await _firestore.collection('users').doc(uid).update({
         'householdIds': FieldValue.arrayUnion([householdId]),
         'lastActiveAt': DateTime.now().toIso8601String(),
@@ -58,18 +57,16 @@ class DatabaseService {
           .get();
 
       if (householdQuery.docs.isEmpty) {
-        return false; // Código inválido
+        return false;
       }
 
       final householdDoc = householdQuery.docs.first;
       final household = Household.fromMap(householdDoc.data());
 
-      // Check if user is already a member
       if (household.isMember(uid)) {
-        return true; // Já é membro
+        return true;
       }
 
-      // Add user to household
       final newMember = HouseholdMember(
         userId: uid,
         role: 'member',
@@ -80,7 +77,6 @@ class DatabaseService {
         'members': FieldValue.arrayUnion([newMember.toMap()]),
       });
 
-      // Add household to user's householdIds
       await _firestore.collection('users').doc(uid).update({
         'householdIds': FieldValue.arrayUnion([household.id]),
         'lastActiveAt': DateTime.now().toIso8601String(),
@@ -94,16 +90,16 @@ class DatabaseService {
 
   Future<void> leaveHousehold(String householdId) async {
     try {
-      // Remove user from household's members list
       final household = await getHousehold(householdId);
       if (household != null) {
-        final updatedMembers = household.members.where((member) => member.userId != uid).toList();
+        final updatedMembers = household.members
+            .where((member) => member.userId != uid)
+            .toList();
         await _firestore.collection('households').doc(householdId).update({
           'members': updatedMembers.map((m) => m.toMap()).toList(),
         });
       }
 
-      // Remove household from user's householdIds list
       await _firestore.collection('users').doc(uid).update({
         'householdIds': FieldValue.arrayRemove([householdId]),
       });
@@ -112,34 +108,96 @@ class DatabaseService {
     }
   }
 
+  Future<void> deleteHousehold(String householdId) async {
+    try {
+      final batch = _firestore.batch();
+      final household = await getHousehold(householdId);
+      if (household == null) return;
+
+      // Delete all cats in the household
+      final catsSnapshot = await _firestore
+          .collection('cats')
+          .where('householdId', isEqualTo: householdId)
+          .get();
+      for (final doc in catsSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // Delete all feedings in the household
+      final feedingsSnapshot = await _firestore
+          .collection('feedings')
+          .where('householdId', isEqualTo: householdId)
+          .get();
+      for (final doc in feedingsSnapshot.docs) {
+        batch.delete(doc.reference);
+      }
+
+      // Delete all weight entries for cats in the household
+      for (final catDoc in catsSnapshot.docs) {
+        final weightEntriesSnapshot = await _firestore
+            .collection('weight_entries')
+            .where('catId', isEqualTo: catDoc.id)
+            .get();
+        for (final doc in weightEntriesSnapshot.docs) {
+          batch.delete(doc.reference);
+        }
+        final weightGoalsSnapshot = await _firestore
+            .collection('weight_goals')
+            .where('catId', isEqualTo: catDoc.id)
+            .get();
+        for (final doc in weightGoalsSnapshot.docs) {
+          batch.delete(doc.reference);
+        }
+      }
+
+      // Remove household from all members
+      for (final member in household.members) {
+        batch.update(_firestore.collection('users').doc(member.userId), {
+          'householdIds': FieldValue.arrayRemove([householdId]),
+        });
+      }
+
+      // Delete the household itself
+      batch.delete(_firestore.collection('households').doc(householdId));
+
+      await batch.commit();
+    } catch (e) {
+      throw Exception('Error deleting household: $e');
+    }
+  }
+
   Stream<List<Household>> getUserHouseholds() {
-    return _firestore
-        .collection('users')
-        .doc(uid)
-        .snapshots()
-        .asyncMap((userDoc) async {
+    return _firestore.collection('users').doc(uid).snapshots().asyncMap((
+      userDoc,
+    ) async {
       if (!userDoc.exists) return <Household>[];
-      
+
       final userData = userDoc.data()!;
       final householdIds = List<String>.from(userData['householdIds'] ?? []);
-      
+
       if (householdIds.isEmpty) return <Household>[];
-      
+
       final households = <Household>[];
       for (final householdId in householdIds) {
-        final householdDoc = await _firestore.collection('households').doc(householdId).get();
+        final householdDoc = await _firestore
+            .collection('households')
+            .doc(householdId)
+            .get();
         if (householdDoc.exists) {
           households.add(Household.fromMap(householdDoc.data()!));
         }
       }
-      
+
       return households;
     });
   }
 
   Future<Household?> getHousehold(String householdId) async {
     try {
-      final doc = await _firestore.collection('households').doc(householdId).get();
+      final doc = await _firestore
+          .collection('households')
+          .doc(householdId)
+          .get();
       if (doc.exists) {
         return Household.fromMap(doc.data()!);
       }
@@ -149,7 +207,11 @@ class DatabaseService {
     }
   }
 
-  Future<void> updateMemberRole(String householdId, String memberId, String role) async {
+  Future<void> updateMemberRole(
+    String householdId,
+    String memberId,
+    String role,
+  ) async {
     try {
       final household = await getHousehold(householdId);
       if (household == null) throw Exception('Household não encontrado');
@@ -175,25 +237,11 @@ class DatabaseService {
 
   // ========== CAT METHODS ==========
 
-  Future<String> addCat(String householdId, Map<String, dynamic> catData) async {
+  Future<String> addCat(Cat cat) async {
     try {
       final catId = _uuid.v4();
-      final schedule = FeedingSchedule.fromMap(catData['schedule'] ?? {});
-      
-      final cat = Cat(
-        id: catId,
-        householdId: householdId,
-        name: catData['name'],
-        photoUrl: catData['photoUrl'],
-        birthdate: catData['birthdate'] != null ? DateTime.parse(catData['birthdate']) : null,
-        currentWeight: catData['currentWeight']?.toDouble(),
-        dietaryRestrictions: catData['dietaryRestrictions'],
-        medicalNotes: catData['medicalNotes'],
-        groups: catData['groups'] != null ? List<String>.from(catData['groups']) : null,
-        schedule: schedule,
-      );
-
-      await _firestore.collection('cats').doc(catId).set(cat.toMap());
+      final newCat = cat.copyWith(id: catId);
+      await _firestore.collection('cats').doc(catId).set(newCat.toMap());
       return catId;
     } catch (e) {
       throw Exception('Erro ao adicionar gato: $e');
@@ -223,16 +271,18 @@ class DatabaseService {
         .where('householdId', isEqualTo: householdId)
         .orderBy('createdAt', descending: false)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Cat.fromMap(doc.id, doc.data()))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => Cat.fromMap(doc.data(), doc.id))
+              .toList(),
+        );
   }
 
   Future<Cat?> getCat(String catId) async {
     try {
       final doc = await _firestore.collection('cats').doc(catId).get();
       if (doc.exists) {
-        return Cat.fromMap(doc.id, doc.data()!);
+        return Cat.fromMap(doc.data()!, doc.id);
       }
       return null;
     } catch (e) {
@@ -242,10 +292,16 @@ class DatabaseService {
 
   // ========== FEEDING METHODS ==========
 
-  Future<String> logFeeding(String catId, String householdId, {double? portionSize, String? notes, String? foodType}) async {
+  Future<String> logFeeding(
+    String catId,
+    String householdId, {
+    double? portionSize,
+    String? notes,
+    String? foodType,
+  }) async {
     try {
       final feedingId = _uuid.v4();
-      
+
       final feeding = Feeding(
         id: feedingId,
         catId: catId,
@@ -257,7 +313,10 @@ class DatabaseService {
         foodType: foodType,
       );
 
-      await _firestore.collection('feedings').doc(feedingId).set(feeding.toMap());
+      await _firestore
+          .collection('feedings')
+          .doc(feedingId)
+          .set(feeding.toMap());
       return feedingId;
     } catch (e) {
       throw Exception('Erro ao registrar alimentação: $e');
@@ -271,12 +330,18 @@ class DatabaseService {
         .orderBy('timestamp', descending: true)
         .limit(limit)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Feeding.fromMap(doc.data()))
-            .toList());
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => Feeding.fromMap(doc.data())).toList(),
+        );
   }
 
-  Stream<List<Feeding>> getFeedingsByHousehold(String householdId, {DateTime? startDate, DateTime? endDate, int limit = 100}) {
+  Stream<List<Feeding>> getFeedingsByHousehold(
+    String householdId, {
+    DateTime? startDate,
+    DateTime? endDate,
+    int limit = 100,
+  }) {
     Query query = _firestore
         .collection('feedings')
         .where('householdId', isEqualTo: householdId)
@@ -290,17 +355,24 @@ class DatabaseService {
       query = query.where('timestamp', isLessThanOrEqualTo: endDate);
     }
 
-    return query.snapshots().map((snapshot) => snapshot.docs
-        .map((doc) => Feeding.fromMap(doc.data() as Map<String, dynamic>))
-        .toList());
+    return query.snapshots().map(
+      (snapshot) => snapshot.docs
+          .map((doc) => Feeding.fromMap(doc.data() as Map<String, dynamic>))
+          .toList(),
+    );
   }
 
   // ========== WEIGHT TRACKING METHODS ==========
 
-  Future<String> logWeight(String catId, double weight, {String? notes, String? measurementType}) async {
+  Future<String> logWeight(
+    String catId,
+    double weight, {
+    String? notes,
+    String? measurementType,
+  }) async {
     try {
       final weightId = _uuid.v4();
-      
+
       final weightEntry = WeightEntry(
         id: weightId,
         catId: catId,
@@ -311,9 +383,11 @@ class DatabaseService {
         measurementType: measurementType ?? 'manual',
       );
 
-      await _firestore.collection('weight_entries').doc(weightId).set(weightEntry.toMap());
-      
-      // Update cat's current weight
+      await _firestore
+          .collection('weight_entries')
+          .doc(weightId)
+          .set(weightEntry.toMap());
+
       await _firestore.collection('cats').doc(catId).update({
         'currentWeight': weight,
         'updatedAt': DateTime.now().toIso8601String(),
@@ -332,12 +406,20 @@ class DatabaseService {
         .orderBy('timestamp', descending: true)
         .limit(limit)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => WeightEntry.fromMap(doc.data()))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => WeightEntry.fromMap(doc.data()))
+              .toList(),
+        );
   }
 
-  Future<void> setWeightGoal(String catId, {double? targetWeight, String? goalType, String? reminderFrequency, String? notes}) async {
+  Future<void> setWeightGoal(
+    String catId, {
+    double? targetWeight,
+    String? goalType,
+    String? reminderFrequency,
+    String? notes,
+  }) async {
     try {
       final weightGoal = WeightGoal(
         catId: catId,
@@ -348,7 +430,10 @@ class DatabaseService {
         notes: notes,
       );
 
-      await _firestore.collection('weight_goals').doc(catId).set(weightGoal.toMap());
+      await _firestore
+          .collection('weight_goals')
+          .doc(catId)
+          .set(weightGoal.toMap());
     } catch (e) {
       throw Exception('Erro ao definir meta de peso: $e');
     }
@@ -372,24 +457,28 @@ class DatabaseService {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = DateTime.now().millisecondsSinceEpoch;
     final code = StringBuffer();
-    
+
     for (int i = 0; i < 6; i++) {
       code.write(chars[(random + i) % chars.length]);
     }
-    
+
     return code.toString();
   }
 
   // ========== LEGACY METHODS (to be removed) ==========
-  
-  @Deprecated('Use new feeding methods instead')
-  Future<void> addMeal(String name, int calories) async {
-    // Legacy method - keeping for compatibility during transition
-  }
 
   @Deprecated('Use new feeding methods instead')
-  Stream<QuerySnapshot> get meals {
-    // Legacy method - keeping for compatibility during transition
-    return _firestore.collection('meals').where('uid', isEqualTo: uid).snapshots();
+  Future<void> addMeal(String name, int calories) async {}
+
+  @Deprecated('Use new feeding methods instead')
+  Stream<List<Feeding>> get meals {
+    return _firestore
+        .collection('meals')
+        .where('uid', isEqualTo: uid)
+        .snapshots()
+        .map(
+          (snapshot) =>
+              snapshot.docs.map((doc) => Feeding.fromMap(doc.data())).toList(),
+        );
   }
 }

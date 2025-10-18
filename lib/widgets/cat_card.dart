@@ -35,7 +35,9 @@ class CatCard extends StatelessWidget {
                         width: double.infinity,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerHighest,
                         ),
                         child: cat.photoUrl != null
                             ? ClipRRect(
@@ -75,7 +77,9 @@ class CatCard extends StatelessWidget {
                           Icon(
                             Icons.monitor_weight,
                             size: 14,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -86,26 +90,33 @@ class CatCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                     ],
-                    
+
                     if (showSchedule) ...[
                       Row(
                         children: [
                           Icon(
-                            cat.schedule.isActive ? Icons.schedule : Icons.schedule_outlined,
+                            cat.schedule.isActive
+                                ? Icons.schedule
+                                : Icons.schedule_outlined,
                             size: 14,
                             color: cat.schedule.isActive
                                 ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                           ),
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               _getScheduleText(),
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: cat.schedule.isActive
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: cat.schedule.isActive
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
+                                  ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -120,17 +131,25 @@ class CatCard extends StatelessWidget {
                         spacing: 4,
                         children: cat.groups!.take(2).map((group) {
                           return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withAlpha(25),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
                               group,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontSize: 10,
-                              ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    fontSize: 10,
+                                  ),
                             ),
                           );
                         }).toList(),
@@ -155,7 +174,7 @@ class CatCard extends StatelessWidget {
       child: Icon(
         Icons.pets,
         size: 40,
-        color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+        color: Theme.of(context).colorScheme.onSurfaceVariant.withAlpha(128),
       ),
     );
   }
@@ -165,9 +184,11 @@ class CatCard extends StatelessWidget {
       return 'Horário desativado';
     }
 
-    if (cat.schedule.type == ScheduleType.fixedInterval && cat.schedule.intervalHours != null) {
+    if (cat.schedule.type == ScheduleType.fixedInterval &&
+        cat.schedule.intervalHours != null) {
       return 'A cada ${cat.schedule.intervalHours}h';
-    } else if (cat.schedule.type == ScheduleType.specificTimes && cat.schedule.specificTimes != null) {
+    } else if (cat.schedule.type == ScheduleType.specificTimes &&
+        cat.schedule.specificTimes != null) {
       if (cat.schedule.specificTimes!.length == 1) {
         return '${cat.schedule.specificTimes!.first}';
       } else if (cat.schedule.specificTimes!.length == 2) {
