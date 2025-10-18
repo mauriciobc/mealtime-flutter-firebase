@@ -8,9 +8,14 @@ import 'package:mealtime/screens/household_settings_screen.dart';
 import 'package:mealtime/screens/household_selection_screen.dart';
 import 'package:mealtime/services/auth_service.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -316,7 +321,7 @@ class SettingsScreen extends StatelessWidget {
               subtitle: Text(
                 'Fazer logout da sua conta',
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.onErrorContainer.withOpacity(0.7),
+                  color: Theme.of(context).colorScheme.onErrorContainer.withAlpha(178),
                 ),
               ),
               onTap: () {
@@ -473,8 +478,10 @@ class SettingsScreen extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () async {
-              Navigator.of(context).pop();
-              await AuthService().signOut();
+              if(mounted){
+                Navigator.of(context).pop();
+                await AuthService().signOut();
+              }
             },
             child: const Text('Sair'),
           ),

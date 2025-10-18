@@ -7,9 +7,14 @@ import 'package:mealtime/screens/join_household_screen.dart';
 import 'package:mealtime/screens/main_screen.dart';
 import 'package:mealtime/widgets/household_card.dart';
 
-class HouseholdSelectionScreen extends StatelessWidget {
+class HouseholdSelectionScreen extends StatefulWidget {
   const HouseholdSelectionScreen({super.key});
 
+  @override
+  State<HouseholdSelectionScreen> createState() => _HouseholdSelectionScreenState();
+}
+
+class _HouseholdSelectionScreenState extends State<HouseholdSelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,10 +76,12 @@ class HouseholdSelectionScreen extends StatelessWidget {
               if (households.length == 1) {
                 // Se há apenas uma casa, selecionar automaticamente
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  householdProvider.setCurrentHousehold(households.first);
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const MainScreen()),
-                  );
+                  if(mounted){
+                    householdProvider.setCurrentHousehold(households.first);
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const MainScreen()),
+                    );
+                  }
                 });
                 return const Center(child: CircularProgressIndicator());
               }
@@ -96,7 +103,7 @@ class HouseholdSelectionScreen extends StatelessWidget {
           Icon(
             Icons.home_outlined,
             size: 120,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withAlpha(77),
           ),
           const SizedBox(height: 32),
           Text(

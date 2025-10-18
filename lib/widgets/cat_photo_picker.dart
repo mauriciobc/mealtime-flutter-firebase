@@ -26,7 +26,7 @@ class CatPhotoPicker extends StatelessWidget {
             width: 2,
             style: BorderStyle.solid,
           ),
-          color: Theme.of(context).colorScheme.surfaceVariant,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
         ),
         child: selectedImage != null
             ? ClipRRect(

@@ -10,7 +10,7 @@ import 'package:mealtime/providers/household_provider.dart';
 import 'package:mealtime/providers/language_provider.dart';
 import 'firebase_options.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz show initializeTimeZones;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,8 +45,6 @@ class MyApp extends StatelessWidget {
       builder: (context, themeProvider, languageProvider, householdProvider, child) {
         // Material Design 3 Expressive colors
         const Color primarySeedColor = Color(0xFF6750A4); // Vibrant purple
-        const Color secondarySeedColor = Color(0xFF625B71); // Muted purple
-        const Color tertiarySeedColor = Color(0xFF7D5260); // Warm pink
 
         final TextTheme appTextTheme = TextTheme(
           displayLarge: GoogleFonts.inter(
@@ -135,7 +133,7 @@ class MyApp extends StatelessWidget {
             secondary: const Color(0xFF625B71),
             tertiary: const Color(0xFF7D5260),
             surface: const Color(0xFFFFFBFE),
-            surfaceVariant: const Color(0xFFE7E0EC),
+            surfaceContainerHighest: const Color(0xFFE7E0EC),
             onSurface: const Color(0xFF1C1B1F),
             onSurfaceVariant: const Color(0xFF49454F),
             outline: const Color(0xFF79747E),
@@ -177,10 +175,10 @@ class MyApp extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
             ),
           ),
-          cardTheme: CardTheme(
+          cardTheme: const CardThemeData(
             elevation: 1,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            color: const Color(0xFFFFFBFE),
+            color: Color(0xFFFFFBFE),
           ),
           chipTheme: ChipThemeData(
             backgroundColor: const Color(0xFFE7E0EC),
@@ -199,7 +197,7 @@ class MyApp extends StatelessWidget {
             secondary: const Color(0xFFCCC2DC),
             tertiary: const Color(0xFFEFB8C8),
             surface: const Color(0xFF1C1B1F),
-            surfaceVariant: const Color(0xFF49454F),
+            surfaceContainerHighest: const Color(0xFF49454F),
             onSurface: const Color(0xFFE6E1E5),
             onSurfaceVariant: const Color(0xFFCAC4D0),
             outline: const Color(0xFF938F99),
@@ -241,10 +239,10 @@ class MyApp extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
             ),
           ),
-          cardTheme: CardTheme(
+          cardTheme: const CardThemeData(
             elevation: 1,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            color: const Color(0xFF1C1B1F),
+            color: Color(0xFF1C1B1F),
           ),
           chipTheme: ChipThemeData(
             backgroundColor: const Color(0xFF49454F),

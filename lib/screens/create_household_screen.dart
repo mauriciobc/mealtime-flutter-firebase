@@ -49,6 +49,7 @@ class _CreateHouseholdScreenState extends State<CreateHouseholdScreen> {
       // Atualizar o provider com a nova casa
       final household = await databaseService.getHousehold(householdId);
       if (household != null) {
+        if (!mounted) return;
         context.read<HouseholdProvider>().addHousehold(household);
         context.read<HouseholdProvider>().setCurrentHousehold(household);
       }

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mealtime/services/database_service.dart';
 import 'package:mealtime/models/cat_model.dart';
 import 'package:mealtime/models/weight_entry_model.dart';
+import 'package:mealtime/screens/weight_log_screen.dart';
 import 'package:mealtime/widgets/weight_chart.dart';
 import 'package:mealtime/widgets/weight_entry_tile.dart';
 
@@ -158,7 +159,7 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> with TickerPr
             Icon(
               Icons.monitor_weight_outlined,
               size: 80,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.primary.withAlpha(77),
             ),
             const SizedBox(height: 24),
             Text(

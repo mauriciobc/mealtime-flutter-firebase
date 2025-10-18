@@ -21,7 +21,7 @@ class MemberListTile extends StatelessWidget {
       leading: CircleAvatar(
         backgroundColor: isCurrentUser
             ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.surfaceVariant,
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
         child: isCurrentUser
             ? Icon(
                 Icons.person,
@@ -95,7 +95,7 @@ class MemberListTile extends StatelessWidget {
       decoration: BoxDecoration(
         color: isAdmin
             ? Theme.of(context).colorScheme.primary
-            : Theme.of(context).colorScheme.surfaceVariant,
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Text(

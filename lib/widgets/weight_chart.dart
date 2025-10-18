@@ -151,7 +151,7 @@ class WeightChart extends StatelessWidget {
           child: _buildTrendItem(
             context,
             'Período',
-            '${daysBetween} dias',
+            '$daysBetween dias',
             Icons.calendar_today,
             Theme.of(context).colorScheme.primary,
           ),

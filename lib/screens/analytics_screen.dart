@@ -7,7 +7,6 @@ import 'package:mealtime/models/cat_model.dart';
 import 'package:mealtime/models/feeding_model.dart';
 import 'package:mealtime/widgets/feeding_frequency_chart.dart';
 import 'package:mealtime/widgets/weight_trend_chart.dart';
-import 'package:mealtime/widgets/export_data_button.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -300,7 +299,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with TickerProviderSt
           Icon(
             Icons.analytics_outlined,
             size: 64,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withAlpha(77),
           ),
           const SizedBox(height: 16),
           Text(

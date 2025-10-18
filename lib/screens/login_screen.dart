@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/services/auth_service.dart';
-import 'package:myapp/screens/signup_screen.dart';
+import 'package:mealtime/services/auth_service.dart';
+import 'package:mealtime/screens/signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -79,9 +79,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     if (_formKey.currentState!.validate()) {
                       dynamic result = await auth.signInWithEmailAndPassword(email, password);
                       if (result == null) {
-                        setState(() {
-                          error = 'Could not sign in with those credentials';
-                        });
+                        if (mounted) {
+                          setState(() {
+                            error = 'Could not sign in with those credentials';
+                          });
+                        }
                       }
                     }
                   },

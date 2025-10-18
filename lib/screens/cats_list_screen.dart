@@ -117,7 +117,7 @@ class CatsListScreen extends StatelessWidget {
           Icon(
             Icons.pets_outlined,
             size: 120,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withAlpha(77),
           ),
           const SizedBox(height: 32),
           Text(

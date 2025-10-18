@@ -46,7 +46,7 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
             actions: [
               if (_selectedCats.isNotEmpty)
                 TextButton(
-                  onPressed: _isFeeding ? null : _feedSelectedCats,
+                  onPressed: _isFeeding ? null : () => _feedSelectedCats(databaseService, household.id),
                   child: _isFeeding
                       ? const SizedBox(
                           width: 16,
@@ -90,7 +90,7 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
                 return _buildEmptyState(context);
               }
 
-              return _buildCatsList(context, cats, databaseService);
+              return _buildCatsList(context, cats, databaseService, household.id);
             },
           ),
         );
@@ -107,7 +107,7 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
           Icon(
             Icons.restaurant_outlined,
             size: 120,
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withAlpha(77),
           ),
           const SizedBox(height: 32),
           Text(
@@ -126,7 +126,7 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
     );
   }
 
-  Widget _buildCatsList(BuildContext context, List<Cat> cats, DatabaseService databaseService) {
+  Widget _buildCatsList(BuildContext context, List<Cat> cats, DatabaseService databaseService, String householdId) {
     return Column(
       children: [
         // Next feeding countdown
@@ -193,7 +193,7 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
                         FeedButton(
                           cat: cat,
                           onFed: () {
-                            _feedSingleCat(cat);
+                            _feedSingleCat(cat, databaseService, householdId);
                           },
                         ),
                       ],
@@ -242,8 +242,7 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
     } else if (cat.schedule.type == ScheduleType.specificTimes && cat.schedule.specificTimes != null) {
       // Find next specific time
       final todayTimes = cat.schedule.specificTimes!.map((time) {
-        final [hour, minute] = time.split(':').map(int.parse);
-        return DateTime(now.year, now.month, now.day, hour, minute);
+        return DateTime(now.year, now.month, now.day, time.hour, time.minute);
       }).where((time) => time.isAfter(now)).toList();
       
       if (todayTimes.isNotEmpty) {
@@ -262,7 +261,7 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
     return 'Não configurado';
   }
 
-  Future<void> _feedSingleCat(Cat cat) async {
+  Future<void> _feedSingleCat(Cat cat, DatabaseService databaseService, String householdId) async {
     setState(() {
       _isFeeding = true;
     });
@@ -271,10 +270,9 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) return;
 
-      final databaseService = DatabaseService(uid: currentUser.uid);
       await databaseService.logFeeding(
+        householdId,
         cat.id,
-        cat.householdId,
         notes: 'Alimentado via app',
       );
 
@@ -304,7 +302,7 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
     }
   }
 
-  Future<void> _feedSelectedCats() async {
+  Future<void> _feedSelectedCats(DatabaseService databaseService, String householdId) async {
     if (_selectedCats.isEmpty) return;
 
     setState(() {
@@ -315,15 +313,12 @@ class _FeedCatsScreenState extends State<FeedCatsScreen> {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser == null) return;
 
-      final databaseService = DatabaseService(uid: currentUser.uid);
-      final household = context.read<HouseholdProvider>().currentHousehold!;
-
       int successCount = 0;
       for (final catId in _selectedCats) {
         try {
           await databaseService.logFeeding(
+            householdId,
             catId,
-            household.id,
             notes: 'Alimentado via app (múltiplos)',
           );
           successCount++;

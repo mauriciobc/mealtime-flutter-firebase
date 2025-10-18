@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/services/auth_service.dart';
+import 'package:mealtime/services/auth_service.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -16,6 +16,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   // text field state
   String email = '';
   String password = '';
+  String displayName = '';
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +38,22 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Text(
                   'MealTime',
                   style: Theme.of(context).textTheme.displayLarge,
+                ),
+                const SizedBox(height: 20.0),
+                TextFormField(
+                  decoration: InputDecoration(
+                    hintText: 'Display Name',
+                    filled: true,
+                    fillColor: Colors.white.withAlpha(200),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  validator: (val) => val!.isEmpty ? 'Enter a display name' : null,
+                  onChanged: (val) {
+                    setState(() => displayName = val);
+                  },
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
@@ -76,11 +93,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   child: const Text('Sign Up'),
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      dynamic result = await _auth.registerWithEmailAndPassword(email, password);
+                      dynamic result = await _auth.registerWithEmailAndPassword(email, password, displayName);
                       if (result == null) {
-                        setState(() {
-                          error = 'Please supply a valid email';
-                        });
+                        if (mounted) {
+                          setState(() {
+                            error = 'Please supply a valid email';
+                          });
+                        }
                       }
                     }
                   },

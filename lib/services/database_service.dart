@@ -92,6 +92,26 @@ class DatabaseService {
     }
   }
 
+  Future<void> leaveHousehold(String householdId) async {
+    try {
+      // Remove user from household's members list
+      final household = await getHousehold(householdId);
+      if (household != null) {
+        final updatedMembers = household.members.where((member) => member.userId != uid).toList();
+        await _firestore.collection('households').doc(householdId).update({
+          'members': updatedMembers.map((m) => m.toMap()).toList(),
+        });
+      }
+
+      // Remove household from user's householdIds list
+      await _firestore.collection('users').doc(uid).update({
+        'householdIds': FieldValue.arrayRemove([householdId]),
+      });
+    } catch (e) {
+      throw Exception('Error leaving household: $e');
+    }
+  }
+
   Stream<List<Household>> getUserHouseholds() {
     return _firestore
         .collection('users')
@@ -171,8 +191,6 @@ class DatabaseService {
         medicalNotes: catData['medicalNotes'],
         groups: catData['groups'] != null ? List<String>.from(catData['groups']) : null,
         schedule: schedule,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
       );
 
       await _firestore.collection('cats').doc(catId).set(cat.toMap());
@@ -206,7 +224,7 @@ class DatabaseService {
         .orderBy('createdAt', descending: false)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => Cat.fromMap(doc.data()))
+            .map((doc) => Cat.fromMap(doc.id, doc.data()))
             .toList());
   }
 
@@ -214,7 +232,7 @@ class DatabaseService {
     try {
       final doc = await _firestore.collection('cats').doc(catId).get();
       if (doc.exists) {
-        return Cat.fromMap(doc.data()!);
+        return Cat.fromMap(doc.id, doc.data()!);
       }
       return null;
     } catch (e) {
@@ -273,7 +291,7 @@ class DatabaseService {
     }
 
     return query.snapshots().map((snapshot) => snapshot.docs
-        .map((doc) => Feeding.fromMap(doc.data()))
+        .map((doc) => Feeding.fromMap(doc.data() as Map<String, dynamic>))
         .toList());
   }
 

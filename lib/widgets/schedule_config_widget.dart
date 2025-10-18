@@ -175,7 +175,7 @@ class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -218,7 +218,7 @@ class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
                     ],
                   ),
                 );
-              }).toList(),
+              }),
             
             const SizedBox(height: 8),
             Text(

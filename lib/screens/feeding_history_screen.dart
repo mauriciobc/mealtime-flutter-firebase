@@ -40,14 +40,18 @@ class _FeedingHistoryScreenState extends State<FeedingHistoryScreen> {
       final databaseService = DatabaseService(uid: user.uid);
       final feedings = await databaseService.getFeedingsByCat(widget.cat.id, limit: 100).first;
       
-      setState(() {
-        _feedings = feedings;
-        _isLoading = false;
-      });
+      if(mounted) {
+        setState(() {
+          _feedings = feedings;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
+      if(mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -104,7 +108,7 @@ class _FeedingHistoryScreenState extends State<FeedingHistoryScreen> {
             Icon(
               Icons.restaurant_outlined,
               size: 80,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.primary.withAlpha(77),
             ),
             const SizedBox(height: 24),
             Text(
@@ -134,7 +138,7 @@ class _FeedingHistoryScreenState extends State<FeedingHistoryScreen> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16.0),
-            color: Theme.of(context).colorScheme.surfaceVariant,
+            color: Theme.of(context).colorScheme.surfaceContainerHighest,
             child: Text(
               'Mostrando ${filteredFeedings.length} alimentação${filteredFeedings.length != 1 ? 'ões' : ''}',
               style: Theme.of(context).textTheme.bodyMedium,

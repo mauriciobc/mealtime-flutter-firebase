@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'package:mealtime/providers/household_provider.dart';
 import 'package:mealtime/services/database_service.dart';
 import 'package:mealtime/services/storage_service.dart';
@@ -26,10 +25,10 @@ class _AddCatScreenState extends State<AddCatScreen> {
   final _medicalNotesController = TextEditingController();
   final _groupsController = TextEditingController();
 
-  File? _selectedImage;
+  XFile? _selectedImage;
   DateTime? _selectedBirthdate;
   double? _currentWeight;
-  List<String> _groups = [];
+  final List<String> _groups = [];
   FeedingSchedule _schedule = FeedingSchedule(
     type: ScheduleType.fixedInterval,
     intervalHours: 8,

@@ -113,7 +113,7 @@ class StorageService {
       const maxSize = 5 * 1024 * 1024; // 5MB
       
       if (fileSize > maxSize) {
-        developer.log('Image file too large: ${fileSize} bytes');
+        developer.log('Image file too large: $fileSize bytes');
         return false;
       }
       

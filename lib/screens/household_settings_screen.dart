@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mealtime/providers/household_provider.dart';
-import 'package:mealtime/models/household_model.dart';
 import 'package:mealtime/services/database_service.dart';
 import 'package:mealtime/screens/household_selection_screen.dart';
 import 'package:mealtime/widgets/member_list_tile.dart';
@@ -54,11 +53,11 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
       if (user == null) return;
 
       final databaseService = DatabaseService(uid: user.uid);
-      await databaseService.removeHouseholdFromUser(household.id);
+      await databaseService.leaveHousehold(household.id);
 
-      context.read<HouseholdProvider>().removeHousehold(household.id);
+      if(mounted) {
+        context.read<HouseholdProvider>().removeHousehold(household.id);
 
-      if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const HouseholdSelectionScreen()),
         );
@@ -119,13 +118,13 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
-      final databaseService = DatabaseService(uid: user.uid);
+      // final databaseService = DatabaseService(uid: user.uid);
       // TODO: Implement delete household method
       // await databaseService.deleteHousehold(household.id);
 
-      context.read<HouseholdProvider>().removeHousehold(household.id);
+      if(mounted) {
+        context.read<HouseholdProvider>().removeHousehold(household.id);
 
-      if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const HouseholdSelectionScreen()),
         );
@@ -256,7 +255,7 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                                   vertical: 12,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.surfaceVariant,
+                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
@@ -305,7 +304,12 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                                     newRole,
                                   );
                                   // Refresh household data
-                                  // TODO: Implement refresh method
+                                  if(mounted) {
+                                    final updatedHousehold = await databaseService.getHousehold(household.id);
+                                    if (mounted && updatedHousehold != null) {
+                                      context.read<HouseholdProvider>().setCurrentHousehold(updatedHousehold);
+                                    }
+                                  }
                                 } catch (e) {
                                   if (mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(

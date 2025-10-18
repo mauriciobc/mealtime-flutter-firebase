@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "943988548357",
+    "project_id": "tummytickles",
+    "storage_bucket": "tummytickles.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:943988548357:android:dc10419bcc259c03094d6c",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2HAkqPpH8cWtcdtD2J6vsBURZQ_XuCh8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:943988548357:android:1f210407e0777ff0094d6c",
+        "android_client_info": {
+          "package_name": "com.mealtime.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2HAkqPpH8cWtcdtD2J6vsBURZQ_XuCh8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

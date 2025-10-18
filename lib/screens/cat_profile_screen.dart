@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mealtime/providers/household_provider.dart';
 import 'package:mealtime/services/database_service.dart';
 import 'package:mealtime/models/cat_model.dart';
 import 'package:mealtime/screens/weight_log_screen.dart';
@@ -272,7 +270,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
                         context,
                         Icons.schedule,
                         'Horários',
-                        cat.schedule.specificTimes?.join(', ') ?? 'Não configurado',
+                        cat.schedule.specificTimes?.map((t) => t.format(context)).join(', ') ?? 'Não configurado',
                       ),
                     ],
                     
@@ -568,8 +566,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
     } else if (cat.schedule.type == ScheduleType.specificTimes && cat.schedule.specificTimes != null) {
       // Find next specific time
       final todayTimes = cat.schedule.specificTimes!.map((time) {
-        final [hour, minute] = time.split(':').map(int.parse);
-        return DateTime(now.year, now.month, now.day, hour, minute);
+        return DateTime(now.year, now.month, now.day, time.hour, time.minute);
       }).where((time) => time.isAfter(now)).toList();
       
       if (todayTimes.isNotEmpty) {
@@ -600,7 +597,7 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Excluir Gato'),
-        content: Text('Tem certeza que deseja excluir ${cat.name}? Esta ação não pode ser desfeita.'),
+        content: Text('Tem certeza que deseja excluir ${widget.cat.name}? Esta ação não pode ser desfeita.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -627,13 +624,13 @@ class _CatProfileScreenState extends State<CatProfileScreen> with TickerProvider
       if (user == null) return;
 
       final databaseService = DatabaseService(uid: user.uid);
-      await databaseService.deleteCat(cat.id);
+      await databaseService.deleteCat(widget.cat.id);
 
       if (mounted) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${cat.name} foi excluído com sucesso'),
+            content: Text('${widget.cat.name} foi excluído com sucesso'),
             backgroundColor: Theme.of(context).colorScheme.primary,
           ),
         );
