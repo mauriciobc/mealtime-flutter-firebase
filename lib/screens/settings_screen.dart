@@ -336,35 +336,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            RadioListTile.adaptive(
-              title: const Text('Claro'),
-              value: ThemeMode.light,
-              groupValue: themeProvider.themeMode,
-              onChanged: (value) {
-                if (value != null) {
-                  themeProvider.setThemeMode(value);
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
-            RadioListTile.adaptive(
-              title: const Text('Escuro'),
-              value: ThemeMode.dark,
-              groupValue: themeProvider.themeMode,
-              onChanged: (value) {
-                if (value != null) {
-                  themeProvider.setThemeMode(value);
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
-            RadioListTile.adaptive(
-              title: const Text('Sistema'),
-              value: ThemeMode.system,
-              groupValue: themeProvider.themeMode,
-              onChanged: (value) {
-                if (value != null) {
-                  themeProvider.setThemeMode(value);
+            SegmentedButton<ThemeMode>(
+              segments: const [
+                ButtonSegment<ThemeMode>(
+                  value: ThemeMode.light,
+                  label: Text('Claro'),
+                  icon: Icon(Icons.light_mode),
+                ),
+                ButtonSegment<ThemeMode>(
+                  value: ThemeMode.dark,
+                  label: Text('Escuro'),
+                  icon: Icon(Icons.dark_mode),
+                ),
+                ButtonSegment<ThemeMode>(
+                  value: ThemeMode.system,
+                  label: Text('Sistema'),
+                  icon: Icon(Icons.brightness_auto),
+                ),
+              ],
+              selected: {themeProvider.themeMode},
+              onSelectionChanged: (Set<ThemeMode> selection) {
+                if (selection.isNotEmpty) {
+                  themeProvider.setThemeMode(selection.first);
                   Navigator.of(context).pop();
                 }
               },
@@ -386,47 +379,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            RadioListTile.adaptive(
-              title: const Text('Sistema'),
-              value: null,
-              groupValue: languageProvider.currentLocale,
-              onChanged: (value) {
-                languageProvider.setLanguage(value);
-                Navigator.of(context).pop();
-              },
-            ),
-            RadioListTile.adaptive(
-              title: const Text('Português (Brasil)'),
-              value: const Locale('pt', 'BR'),
-              groupValue: languageProvider.currentLocale,
-              onChanged: (value) {
-                if (value != null) {
-                  languageProvider.setLanguage(value);
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
-            RadioListTile.adaptive(
-              title: const Text('English (US)'),
-              value: const Locale('en', 'US'),
-              groupValue: languageProvider.currentLocale,
-              onChanged: (value) {
-                if (value != null) {
-                  languageProvider.setLanguage(value);
-                  Navigator.of(context).pop();
-                }
-              },
-            ),
-            RadioListTile.adaptive(
-              title: const Text('Español (España)'),
-              value: const Locale('es', 'ES'),
-              groupValue: languageProvider.currentLocale,
-              onChanged: (value) {
-                if (value != null) {
-                  languageProvider.setLanguage(value);
-                  Navigator.of(context).pop();
-                }
-              },
+            Column(
+              children: [
+                ListTile(
+                  title: const Text('Sistema'),
+                  leading: const Icon(Icons.language),
+                  trailing: languageProvider.currentLocale == null
+                      ? const Icon(Icons.check, color: Colors.green)
+                      : null,
+                  onTap: () {
+                    languageProvider.setLanguage(null);
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ListTile(
+                  title: const Text('Português (Brasil)'),
+                  leading: const Icon(Icons.flag),
+                  trailing: languageProvider.currentLocale?.toString() == 'pt_BR'
+                      ? const Icon(Icons.check, color: Colors.green)
+                      : null,
+                  onTap: () {
+                    languageProvider.setLanguage(const Locale('pt', 'BR'));
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ListTile(
+                  title: const Text('English (US)'),
+                  leading: const Icon(Icons.flag),
+                  trailing: languageProvider.currentLocale?.toString() == 'en_US'
+                      ? const Icon(Icons.check, color: Colors.green)
+                      : null,
+                  onTap: () {
+                    languageProvider.setLanguage(const Locale('en', 'US'));
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ListTile(
+                  title: const Text('Español (España)'),
+                  leading: const Icon(Icons.flag),
+                  trailing: languageProvider.currentLocale?.toString() == 'es_ES'
+                      ? const Icon(Icons.check, color: Colors.green)
+                      : null,
+                  onTap: () {
+                    languageProvider.setLanguage(const Locale('es', 'ES'));
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
           ],
         ),

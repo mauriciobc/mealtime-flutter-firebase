@@ -19,13 +19,18 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
   bool _isLoading = false;
 
   Future<void> _leaveHousehold() async {
+    // Access context-dependent objects before async gap
+    final householdProvider =
+        Provider.of<HouseholdProvider>(context, listen: false);
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final theme = Theme.of(context);
+    final household = householdProvider.currentHousehold;
+
     // Show confirmation dialog before proceeding
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
-        final household =
-            Provider.of<HouseholdProvider>(context, listen: false)
-                .currentHousehold;
         return AlertDialog(
           title: const Text('Sair da Casa'),
           content: Text(
@@ -54,14 +59,6 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
         _isLoading = true;
       });
     }
-
-    // Access context-dependent objects before async gap
-    final householdProvider =
-        Provider.of<HouseholdProvider>(context, listen: false);
-    final navigator = Navigator.of(context);
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final theme = Theme.of(context);
-    final household = householdProvider.currentHousehold;
 
     if (household == null) {
       if (mounted) {
@@ -103,13 +100,18 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
   }
 
   Future<void> _deleteHousehold() async {
+    // Access context-dependent objects before async gap
+    final householdProvider =
+        Provider.of<HouseholdProvider>(context, listen: false);
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final theme = Theme.of(context);
+    final household = householdProvider.currentHousehold;
+
     // Show confirmation dialog before proceeding
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
-        final household =
-            Provider.of<HouseholdProvider>(context, listen: false)
-                .currentHousehold;
         return AlertDialog(
           title: const Text('Excluir Casa'),
           content: Text(
@@ -141,14 +143,6 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
         _isLoading = true;
       });
     }
-
-    // Access context-dependent objects before async gap
-    final householdProvider =
-        Provider.of<HouseholdProvider>(context, listen: false);
-    final navigator = Navigator.of(context);
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
-    final theme = Theme.of(context);
-    final household = householdProvider.currentHousehold;
 
     if (household == null) {
       if (mounted) {

@@ -465,20 +465,4 @@ class DatabaseService {
     return code.toString();
   }
 
-  // ========== LEGACY METHODS (to be removed) ==========
-
-  @Deprecated('Use new feeding methods instead')
-  Future<void> addMeal(String name, int calories) async {}
-
-  @Deprecated('Use new feeding methods instead')
-  Stream<List<Feeding>> get meals {
-    return _firestore
-        .collection('meals')
-        .where('uid', isEqualTo: uid)
-        .snapshots()
-        .map(
-          (snapshot) =>
-              snapshot.docs.map((doc) => Feeding.fromMap(doc.data())).toList(),
-        );
-  }
 }

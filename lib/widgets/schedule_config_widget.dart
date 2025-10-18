@@ -58,37 +58,28 @@ class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: RadioListTile.adaptive(
-                  title: const Text('Intervalo'),
-                  subtitle: const Text('A cada X horas'),
-                  value: ScheduleType.fixedInterval,
-                  groupValue: _selectedType,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedType = value!;
-                    });
-                    _updateSchedule();
-                  },
-                ),
+          SegmentedButton<ScheduleType>(
+            segments: const [
+              ButtonSegment<ScheduleType>(
+                value: ScheduleType.fixedInterval,
+                label: Text('Intervalo'),
+                tooltip: 'A cada X horas',
               ),
-              Expanded(
-                child: RadioListTile.adaptive(
-                  title: const Text('Horários'),
-                  subtitle: const Text('Horários específicos'),
-                  value: ScheduleType.specificTimes,
-                  groupValue: _selectedType,
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedType = value!;
-                    });
-                    _updateSchedule();
-                  },
-                ),
+              ButtonSegment<ScheduleType>(
+                value: ScheduleType.specificTimes,
+                label: Text('Horários'),
+                tooltip: 'Horários específicos',
               ),
             ],
+            selected: {_selectedType},
+            onSelectionChanged: (Set<ScheduleType> selection) {
+              if (selection.isNotEmpty) {
+                setState(() {
+                  _selectedType = selection.first;
+                });
+                _updateSchedule();
+              }
+            },
           ),
           const SizedBox(height: 16),
 
