@@ -61,7 +61,7 @@ class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
           Row(
             children: [
               Expanded(
-                child: RadioListTile<ScheduleType>(
+                child: RadioListTile.adaptive(
                   title: const Text('Intervalo'),
                   subtitle: const Text('A cada X horas'),
                   value: ScheduleType.fixedInterval,
@@ -75,7 +75,7 @@ class _ScheduleConfigWidgetState extends State<ScheduleConfigWidget> {
                 ),
               ),
               Expanded(
-                child: RadioListTile<ScheduleType>(
+                child: RadioListTile.adaptive(
                   title: const Text('Horários'),
                   subtitle: const Text('Horários específicos'),
                   value: ScheduleType.specificTimes,

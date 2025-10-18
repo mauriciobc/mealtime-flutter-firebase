@@ -44,7 +44,7 @@ class WeightChart extends StatelessWidget {
                       return FlLine(
                         color: Theme.of(
                           context,
-                        ).colorScheme.outline.withOpacity(0.2),
+                        ).colorScheme.outline.withAlpha(51),
                         strokeWidth: 1,
                       );
                     },
@@ -110,7 +110,7 @@ class WeightChart extends StatelessWidget {
                         show: true,
                         color: Theme.of(
                           context,
-                        ).colorScheme.primary.withOpacity(0.1),
+                        ).colorScheme.primary.withAlpha(26),
                       ),
                     ),
                   ],

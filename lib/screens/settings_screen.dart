@@ -336,55 +336,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
+            RadioListTile.adaptive(
               title: const Text('Claro'),
-              leading: Radio<ThemeMode>(
-                value: ThemeMode.light,
-                groupValue: themeProvider.themeMode,
-                onChanged: (value) {
-                  if (value != null) {
-                    themeProvider.setThemeMode(value);
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-              onTap: () {
-                  themeProvider.setThemeMode(ThemeMode.light);
+              value: ThemeMode.light,
+              groupValue: themeProvider.themeMode,
+              onChanged: (value) {
+                if (value != null) {
+                  themeProvider.setThemeMode(value);
                   Navigator.of(context).pop();
+                }
               },
             ),
-            ListTile(
+            RadioListTile.adaptive(
               title: const Text('Escuro'),
-              leading: Radio<ThemeMode>(
-                value: ThemeMode.dark,
-                groupValue: themeProvider.themeMode,
-                onChanged: (value) {
-                  if (value != null) {
-                    themeProvider.setThemeMode(value);
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-              onTap: () {
-                  themeProvider.setThemeMode(ThemeMode.dark);
+              value: ThemeMode.dark,
+              groupValue: themeProvider.themeMode,
+              onChanged: (value) {
+                if (value != null) {
+                  themeProvider.setThemeMode(value);
                   Navigator.of(context).pop();
+                }
               },
             ),
-            ListTile(
+            RadioListTile.adaptive(
               title: const Text('Sistema'),
-              leading: Radio<ThemeMode>(
-                value: ThemeMode.system,
-                groupValue: themeProvider.themeMode,
-                onChanged: (value) {
-                  if (value != null) {
-                    themeProvider.setThemeMode(value);
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-              onTap: () {
-                  themeProvider.setThemeMode(ThemeMode.system);
+              value: ThemeMode.system,
+              groupValue: themeProvider.themeMode,
+              onChanged: (value) {
+                if (value != null) {
+                  themeProvider.setThemeMode(value);
                   Navigator.of(context).pop();
+                }
               },
             ),
           ],
@@ -404,70 +386,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
+            RadioListTile.adaptive(
               title: const Text('Sistema'),
-              leading: Radio<Locale?>(
-                value: null,
-                groupValue: languageProvider.currentLocale,
-                onChanged: (value) {
-                  languageProvider.setLanguage(null);
-                  Navigator.of(context).pop();
-                },
-              ),
-              onTap: () {
-                  languageProvider.setLanguage(null);
-                  Navigator.of(context).pop();
+              value: null,
+              groupValue: languageProvider.currentLocale,
+              onChanged: (value) {
+                languageProvider.setLanguage(value);
+                Navigator.of(context).pop();
               },
             ),
-            ListTile(
+            RadioListTile.adaptive(
               title: const Text('Português (Brasil)'),
-              leading: Radio<Locale?>(
-                value: const Locale('pt', 'BR'),
-                groupValue: languageProvider.currentLocale,
-                onChanged: (value) {
-                  if (value != null) {
-                    languageProvider.setLanguage(value);
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-              onTap: () {
-                  languageProvider.setLanguage(const Locale('pt', 'BR'));
+              value: const Locale('pt', 'BR'),
+              groupValue: languageProvider.currentLocale,
+              onChanged: (value) {
+                if (value != null) {
+                  languageProvider.setLanguage(value);
                   Navigator.of(context).pop();
+                }
               },
             ),
-            ListTile(
+            RadioListTile.adaptive(
               title: const Text('English (US)'),
-              leading: Radio<Locale?>(
-                value: const Locale('en', 'US'),
-                groupValue: languageProvider.currentLocale,
-                onChanged: (value) {
-                  if (value != null) {
-                    languageProvider.setLanguage(value);
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-              onTap: () {
-                  languageProvider.setLanguage(const Locale('en', 'US'));
+              value: const Locale('en', 'US'),
+              groupValue: languageProvider.currentLocale,
+              onChanged: (value) {
+                if (value != null) {
+                  languageProvider.setLanguage(value);
                   Navigator.of(context).pop();
+                }
               },
             ),
-            ListTile(
+            RadioListTile.adaptive(
               title: const Text('Español (España)'),
-              leading: Radio<Locale?>(
-                value: const Locale('es', 'ES'),
-                groupValue: languageProvider.currentLocale,
-                onChanged: (value) {
-                  if (value != null) {
-                    languageProvider.setLanguage(value);
-                    Navigator.of(context).pop();
-                  }
-                },
-              ),
-              onTap: () {
-                  languageProvider.setLanguage(const Locale('es', 'ES'));
+              value: const Locale('es', 'ES'),
+              groupValue: languageProvider.currentLocale,
+              onChanged: (value) {
+                if (value != null) {
+                  languageProvider.setLanguage(value);
                   Navigator.of(context).pop();
+                }
               },
             ),
           ],

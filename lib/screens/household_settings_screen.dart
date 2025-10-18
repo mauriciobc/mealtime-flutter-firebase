@@ -49,9 +49,11 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
     if (confirmed != true) return;
 
     // Set loading state
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
 
     // Access context-dependent objects before async gap
     final householdProvider =
@@ -134,9 +136,11 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
     if (confirmed != true) return;
 
     // Set loading state
-    setState(() {
-      _isLoading = true;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+    }
 
     // Access context-dependent objects before async gap
     final householdProvider =
@@ -345,8 +349,11 @@ class _HouseholdSettingsScreenState extends State<HouseholdSettingsScreen> {
                               canChangeRole:
                                   isAdmin && member.userId != currentUser?.uid,
                               onRoleChanged: (newRole) async {
-                                final householdProvider = context.read<HouseholdProvider>();
-                                final scaffoldMessenger = ScaffoldMessenger.of(context);
+                                if (!mounted) return;
+                                final householdProvider =
+                                    context.read<HouseholdProvider>();
+                                final scaffoldMessenger =
+                                    ScaffoldMessenger.of(context);
                                 final theme = Theme.of(context);
                                 try {
                                   final databaseService = DatabaseService(
